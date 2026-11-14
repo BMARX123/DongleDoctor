@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,27 +10,28 @@ using DongleDoctor.Core.Usb;
 
 namespace DongleDoctor.App.ViewModels;
 
-/// <summary>The Quick checks screen: runs the instant checks and shows each row as it finishes.</summary>
-public partial class QuickChecksViewModel(IUsbTopology usb) : ViewModelBase
+/// <summary>
+/// The Quick checks screen: runs the instant checks and shows each row as it finishes. The checks take
+/// milliseconds, so it waits for the user to press See results rather than flashing past.
+/// </summary>
+public partial class QuickChecksViewModel(IUsbTopology usb, Action<IReadOnlyList<Finding>> showResults) : ViewModelBase
 {
+    private IReadOnlyList<Finding>? _findings;
+
     public ObservableCollection<CheckRowViewModel> Rows { get; } = [];
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SeeResultsCommand))]
+    public partial bool IsFinished { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Progress))]
     public partial int Done { get; set; }
 
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(CheckAgainCommand))]
-    public partial bool IsRunning { get; set; }
-
     public string Progress => $"{Done} of {Rows.Count} checked";
 
     public async Task RunAsync()
     {
-        IsRunning = true;
-        Rows.Clear();
-        Done = 0;
-        // A fresh set of checks re-reads the USB tree, so moving the dongle and checking again works.
         var checks = UsbChecks.Create(usb);
         foreach (var check in checks)
         {
@@ -36,16 +39,16 @@ public partial class QuickChecksViewModel(IUsbTopology usb) : ViewModelBase
         }
 
         OnPropertyChanged(nameof(Progress));
-        await Task.WhenAll(checks.Select(async (check, i) =>
+        _findings = await Task.WhenAll(checks.Select(async (check, i) =>
         {
-            Rows[i].Complete(await CheckRunner.RunSafeAsync(check));
+            var finding = await CheckRunner.RunSafeAsync(check);
+            Rows[i].Complete(finding);
             Done++;
+            return finding;
         }));
-        IsRunning = false;
+        IsFinished = true;
     }
 
-    [RelayCommand(CanExecute = nameof(CanCheckAgain))]
-    private Task CheckAgain() => RunAsync();
-
-    private bool CanCheckAgain() => !IsRunning;
+    [RelayCommand(CanExecute = nameof(IsFinished))]
+    private void SeeResults() => showResults(_findings!);
 }

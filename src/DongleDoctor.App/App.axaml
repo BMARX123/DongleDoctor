@@ -8,6 +8,7 @@
     <Application.DataTemplates>
         <DataTemplate DataType="vm:WelcomeViewModel"><v:WelcomeView /></DataTemplate>
         <DataTemplate DataType="vm:QuickChecksViewModel"><v:QuickChecksView /></DataTemplate>
+        <DataTemplate DataType="vm:ResultViewModel"><v:ResultView /></DataTemplate>
     </Application.DataTemplates>
 
     <!-- Brand colours, light and dark. Accent #1A9FFF takes dark text: white on it is only 2.9:1 contrast. -->
@@ -113,7 +114,7 @@
             <Setter Property="CornerRadius" Value="10" />
             <Setter Property="Background" Value="{DynamicResource DdNeutralSoftBrush}" />
         </Style>
-        <Style Selector="Border.ic > TextBlock">
+        <Style Selector="Border.ic TextBlock">
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="HorizontalAlignment" Value="Center" />
@@ -121,10 +122,47 @@
             <Setter Property="Foreground" Value="{DynamicResource DdInk2Brush}" />
         </Style>
         <Style Selector="Border.ic.good"><Setter Property="Background" Value="{DynamicResource DdGoodSoftBrush}" /></Style>
-        <Style Selector="Border.ic.good > TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdGoodBrush}" /></Style>
+        <Style Selector="Border.ic.good TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdGoodBrush}" /></Style>
         <Style Selector="Border.ic.warn"><Setter Property="Background" Value="{DynamicResource DdWarnSoftBrush}" /></Style>
-        <Style Selector="Border.ic.warn > TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdWarnBrush}" /></Style>
+        <Style Selector="Border.ic.warn TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdWarnBrush}" /></Style>
         <Style Selector="Border.ic.crit"><Setter Property="Background" Value="{DynamicResource DdCritSoftBrush}" /></Style>
-        <Style Selector="Border.ic.crit > TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdCritBrush}" /></Style>
+        <Style Selector="Border.ic.crit TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdCritBrush}" /></Style>
+
+        <!-- Results: the verdict banner and its round badge. -->
+        <Style Selector="Border.verdict">
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style Selector="Border.verdict.bad"><Setter Property="Background" Value="{DynamicResource DdCritSoftBrush}" /></Style>
+        <Style Selector="Border.verdict.away"><Setter Property="Background" Value="{DynamicResource DdWarnSoftBrush}" /></Style>
+        <Style Selector="Border.badge">
+            <Setter Property="Width" Value="44" />
+            <Setter Property="Height" Value="44" />
+            <Setter Property="CornerRadius" Value="22" />
+        </Style>
+        <Style Selector="Border.badge > TextBlock">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="FontWeight" Value="ExtraBold" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource DdWindowBrush}" />
+        </Style>
+        <Style Selector="Border.bad Border.badge"><Setter Property="Background" Value="{DynamicResource DdCritBrush}" /></Style>
+        <Style Selector="Border.away Border.badge"><Setter Property="Background" Value="{DynamicResource DdWarnBrush}" /></Style>
+
+        <!-- Results: one finding, with a severity stripe on the left (the wording carries severity too). -->
+        <Style Selector="Border.finding">
+            <Setter Property="BorderBrush" Value="{DynamicResource DdLineBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+        <Style Selector="Border.stripe"><Setter Property="Background" Value="{DynamicResource DdAccentTextBrush}" /></Style>
+        <Style Selector="Border.stripe.crit"><Setter Property="Background" Value="{DynamicResource DdCritBrush}" /></Style>
+        <Style Selector="Border.stripe.warn"><Setter Property="Background" Value="{DynamicResource DdWarnBrush}" /></Style>
+        <Style Selector="Button.ghost.compact">
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
     </Application.Styles>
 </Application>

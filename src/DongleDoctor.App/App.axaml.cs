@@ -20,7 +20,7 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(new WindowsUsbTopology()),
+                DataContext = new MainViewModel(new WindowsUsbTopology(), () => desktop.Shutdown()),
             };
         }
 

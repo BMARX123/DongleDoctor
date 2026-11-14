@@ -25,14 +25,14 @@ public static class UsbChecks
         if (dongle is null)
         {
             return new Finding(id, Severity.Blocker, "Dongle not found",
-                "Plug the Steam Frame's USB dongle into your PC.", FindingAction.Guide);
+                "Plug the Steam Frame's USB dongle into your PC.");
         }
 
         if (dongle.ProblemCode != 0)
         {
             return new Finding(id, Severity.Blocker, "Your dongle isn't working",
                 "Windows found the dongle but reports a problem with it. Try unplugging it and plugging it back in.",
-                FindingAction.Guide, $"{dongle.Name} ({dongle.InstanceId}): device problem code {dongle.ProblemCode}");
+                Details: $"{dongle.Name} ({dongle.InstanceId}): device problem code {dongle.ProblemCode}");
         }
 
         return new Finding(id, Severity.Pass, "Dongle found", "Steam Frame wireless adapter",
@@ -78,7 +78,8 @@ public static class UsbChecks
         if (hubs.Any(h => !h.IsBuiltIn))
         {
             return new Finding(id, Severity.Warning, "Plugged into a USB hub",
-                "Hubs can cause short lag spikes. Use a port on the back of your PC.", FindingAction.Guide, chain);
+                "Hubs can cause short lag spikes. Plug the dongle straight into your PC, or use a passive extension cable.",
+                Details: chain);
         }
 
         return new Finding(id, Severity.Pass, "Plugged into your PC",

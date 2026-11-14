@@ -1,0 +1,129 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DongleDoctor.App.ViewModels"
+             x:Class="DongleDoctor.App.Views.ResultView"
+             x:DataType="vm:ResultViewModel">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="FindingRow" DataType="vm:FindingRowViewModel">
+            <Border Classes="finding">
+                <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
+                    <Border Classes="stripe" Classes.crit="{Binding IsBlocker}" Classes.warn="{Binding IsWarning}" />
+                    <StackPanel Grid.Column="1" Margin="0,8" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource DdInkBrush}" />
+                        <TextBlock Text="{Binding Description}" FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource DdInk2Brush}" />
+                    </StackPanel>
+                    <Button Grid.Column="2" Classes="ghost compact" Margin="0,0,10,0" VerticalAlignment="Center"
+                            Content="Show me how" IsVisible="{Binding HasGuide}" Command="{Binding OpenGuideCommand}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Panel>
+        <!-- Ready -->
+        <DockPanel IsVisible="{Binding IsReady}">
+            <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Center" Content="Done" Command="{Binding DoneCommand}" />
+            <ScrollViewer>
+                <StackPanel Spacing="14">
+                    <Border Width="96" Height="96" CornerRadius="48" HorizontalAlignment="Center" Margin="0,24,0,0"
+                            Background="{DynamicResource DdGoodSoftBrush}">
+                        <TextBlock Text="✓" FontSize="46" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource DdGoodBrush}" />
+                    </Border>
+                    <TextBlock Classes="h" TextAlignment="Center" Text="{Binding Headline}" />
+                    <TextBlock Classes="sub" TextAlignment="Center" Text="{Binding Summary}" />
+                    <TextBlock Classes="small" HorizontalAlignment="Center">
+                        <Run Text="Checks passed:" /> <Run Text="{Binding ChecksSummary}" FontWeight="Bold" />
+                    </TextBlock>
+                    <StackPanel Spacing="8" IsVisible="{Binding HasImprovements}" Margin="0,8,0,0">
+                        <TextBlock Classes="small" Text="Optional improvements" FontWeight="Bold" />
+                        <ItemsControl ItemsSource="{Binding Improvements}" ItemTemplate="{StaticResource FindingRow}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- Not ready -->
+        <DockPanel IsVisible="{Binding IsNotReady}">
+            <Border DockPanel.Dock="Top" Classes="verdict bad" Margin="0,0,0,14">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border Classes="badge"><TextBlock Text="!" /></Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Classes="h" FontSize="20" Text="{Binding Headline}" />
+                        <TextBlock Classes="sub" Text="{Binding Summary}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Right" Margin="0,14,0,0"
+                    Content="Check again" Command="{Binding CheckAgainCommand}" />
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding ToFix}" ItemTemplate="{StaticResource FindingRow}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- Hiccups, not from the PC. Reached only once a streaming scan exists. -->
+        <DockPanel IsVisible="{Binding IsNotFromPc}">
+            <Border DockPanel.Dock="Top" Classes="verdict away" Margin="0,0,0,14">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border Classes="badge"><TextBlock Text="~" /></Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Classes="h" FontSize="20" Text="{Binding Headline}" />
+                        <TextBlock Classes="sub" Text="{Binding Summary}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,14,0,0">
+                <Button Classes="ghost" Content="Check again" Command="{Binding CheckAgainCommand}" />
+                <!-- Reports aren't built yet. -->
+                <Button Classes="primary" Content="Save report" IsEnabled="False" ToolTip.Tip="Reports are coming soon" />
+            </StackPanel>
+            <ScrollViewer>
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="small" TextWrapping="Wrap"
+                               Text="The hiccups happened between the dongle and your Frame. These sometimes help:" />
+                    <Border Classes="finding">
+                        <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
+                            <Border Classes="stripe" />
+                            <StackPanel Grid.Column="1" Margin="0,8">
+                                <TextBlock Text="Give the dongle a clear view" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
+                                <TextBlock Text="Walls, desks and furniture between it and you weaken the signal" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource DdInk2Brush}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Classes="finding">
+                        <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
+                            <Border Classes="stripe" />
+                            <StackPanel Grid.Column="1" Margin="0,8">
+                                <TextBlock Text="Check for busy Wi-Fi nearby" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
+                                <TextBlock Text="Other networks on the same channel can interrupt the stream" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource DdInk2Brush}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Classes="finding">
+                        <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
+                            <Border Classes="stripe" />
+                            <StackPanel Grid.Column="1" Margin="0,8">
+                                <TextBlock Text="Check your Frame's settings" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
+                                <TextBlock Text="Headset updates and Wi-Fi settings can affect the link" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource DdInk2Brush}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <StackPanel Spacing="8" IsVisible="{Binding HasImprovements}" Margin="0,8,0,0">
+                        <TextBlock Classes="small" Text="Optional improvements" FontWeight="Bold" />
+                        <ItemsControl ItemsSource="{Binding Improvements}" ItemTemplate="{StaticResource FindingRow}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Panel>
+
+</UserControl>
