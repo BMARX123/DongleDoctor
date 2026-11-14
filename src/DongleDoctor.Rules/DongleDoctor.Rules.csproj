@@ -1,0 +1,5 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Will hold data-driven rules (thresholds, finding text) so they can change without touching C#. -->
+
+</Project>

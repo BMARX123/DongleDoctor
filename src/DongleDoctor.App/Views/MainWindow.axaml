@@ -1,0 +1,15 @@
+<!-- A small fixed-size window, like a wizard: 460 × 620 DIP, scaled by Windows display scaling. -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DongleDoctor.App.ViewModels"
+        x:Class="DongleDoctor.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="DongleDoctor"
+        Width="460" Height="620"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource DdWindowBrush}">
+
+    <ContentControl Content="{Binding CurrentPage}" Margin="22" />
+
+</Window>
