@@ -1,0 +1,130 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DongleDoctor.App.ViewModels"
+             xmlns:v="using:DongleDoctor.App.Views"
+             x:Class="DongleDoctor.App.App"
+             RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <DataTemplate DataType="vm:WelcomeViewModel"><v:WelcomeView /></DataTemplate>
+        <DataTemplate DataType="vm:QuickChecksViewModel"><v:QuickChecksView /></DataTemplate>
+    </Application.DataTemplates>
+
+    <!-- Brand colours, light and dark. Accent #1A9FFF takes dark text: white on it is only 2.9:1 contrast. -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="DdWindowBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="DdInkBrush" Color="#17232C" />
+                    <SolidColorBrush x:Key="DdInk2Brush" Color="#4D5E6A" />
+                    <SolidColorBrush x:Key="DdLineBrush" Color="#C9D3DA" />
+                    <SolidColorBrush x:Key="DdAccentBrush" Color="#1A9FFF" />
+                    <SolidColorBrush x:Key="DdAccentHoverBrush" Color="#4DB4FF" />
+                    <SolidColorBrush x:Key="DdAccentTextBrush" Color="#0A69C2" />
+                    <SolidColorBrush x:Key="DdAccentInkBrush" Color="#04203A" />
+                    <SolidColorBrush x:Key="DdAccentSoftBrush" Color="#DCEFFF" />
+                    <SolidColorBrush x:Key="DdGoodBrush" Color="#1F7A3F" />
+                    <SolidColorBrush x:Key="DdGoodSoftBrush" Color="#DCEFE2" />
+                    <SolidColorBrush x:Key="DdWarnBrush" Color="#A35F00" />
+                    <SolidColorBrush x:Key="DdWarnSoftBrush" Color="#F7E7CC" />
+                    <SolidColorBrush x:Key="DdCritBrush" Color="#B3261E" />
+                    <SolidColorBrush x:Key="DdCritSoftBrush" Color="#F6DCD9" />
+                    <SolidColorBrush x:Key="DdNeutralSoftBrush" Color="#E6ECEF" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="DdWindowBrush" Color="#1A252C" />
+                    <SolidColorBrush x:Key="DdInkBrush" Color="#E3EAEE" />
+                    <SolidColorBrush x:Key="DdInk2Brush" Color="#9AABB6" />
+                    <SolidColorBrush x:Key="DdLineBrush" Color="#2C3A43" />
+                    <SolidColorBrush x:Key="DdAccentBrush" Color="#1A9FFF" />
+                    <SolidColorBrush x:Key="DdAccentHoverBrush" Color="#4DB4FF" />
+                    <SolidColorBrush x:Key="DdAccentTextBrush" Color="#5CB8FF" />
+                    <SolidColorBrush x:Key="DdAccentInkBrush" Color="#04203A" />
+                    <SolidColorBrush x:Key="DdAccentSoftBrush" Color="#10304D" />
+                    <SolidColorBrush x:Key="DdGoodBrush" Color="#5FC47F" />
+                    <SolidColorBrush x:Key="DdGoodSoftBrush" Color="#17331F" />
+                    <SolidColorBrush x:Key="DdWarnBrush" Color="#E3A54A" />
+                    <SolidColorBrush x:Key="DdWarnSoftBrush" Color="#3A2A12" />
+                    <SolidColorBrush x:Key="DdCritBrush" Color="#F07A70" />
+                    <SolidColorBrush x:Key="DdCritSoftBrush" Color="#3D1A17" />
+                    <SolidColorBrush x:Key="DdNeutralSoftBrush" Color="#222F37" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <Style Selector="TextBlock.h">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="ExtraBold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Foreground" Value="{DynamicResource DdInkBrush}" />
+        </Style>
+        <Style Selector="TextBlock.sub">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Foreground" Value="{DynamicResource DdInk2Brush}" />
+        </Style>
+        <Style Selector="TextBlock.small">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource DdInk2Brush}" />
+        </Style>
+
+        <!-- The one main button on each screen. -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="{DynamicResource DdAccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource DdAccentInkBrush}" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Padding" Value="26,12" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource DdAccentHoverBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource DdAccentInkBrush}" />
+        </Style>
+        <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource DdAccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource DdAccentInkBrush}" />
+        </Style>
+
+        <Style Selector="Button.ghost">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource DdAccentTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DdAccentTextBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Padding" Value="16,9" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+        <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource DdAccentSoftBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource DdAccentTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DdAccentTextBrush}" />
+        </Style>
+
+        <!-- Status icons on the Quick checks rows. -->
+        <Style Selector="Border.ic">
+            <Setter Property="Width" Value="20" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Background" Value="{DynamicResource DdNeutralSoftBrush}" />
+        </Style>
+        <Style Selector="Border.ic > TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource DdInk2Brush}" />
+        </Style>
+        <Style Selector="Border.ic.good"><Setter Property="Background" Value="{DynamicResource DdGoodSoftBrush}" /></Style>
+        <Style Selector="Border.ic.good > TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdGoodBrush}" /></Style>
+        <Style Selector="Border.ic.warn"><Setter Property="Background" Value="{DynamicResource DdWarnSoftBrush}" /></Style>
+        <Style Selector="Border.ic.warn > TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdWarnBrush}" /></Style>
+        <Style Selector="Border.ic.crit"><Setter Property="Background" Value="{DynamicResource DdCritSoftBrush}" /></Style>
+        <Style Selector="Border.ic.crit > TextBlock"><Setter Property="Foreground" Value="{DynamicResource DdCritBrush}" /></Style>
+    </Application.Styles>
+</Application>

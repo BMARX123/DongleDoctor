@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DongleDoctor.App/DongleDoctor.App.csproj" />
+    <Project Path="src/DongleDoctor.Core/DongleDoctor.Core.csproj" />
+    <Project Path="src/DongleDoctor.Platform.Windows/DongleDoctor.Platform.Windows.csproj" />
+    <Project Path="src/DongleDoctor.Rules/DongleDoctor.Rules.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DongleDoctor.Core.Tests/DongleDoctor.Core.Tests.csproj" />
+    <Project Path="tests/DongleDoctor.Platform.Windows.Tests/DongleDoctor.Platform.Windows.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,13 @@
+# Store text with LF in the repo; Git converts to the platform's line ending on checkout.
+* text=auto
+
+*.cs      text diff=csharp
+*.axaml   text
+*.csproj  text
+*.props   text
+*.slnx    text
+*.md      text
+*.json    text
+
+*.ico     binary
+*.png     binary
