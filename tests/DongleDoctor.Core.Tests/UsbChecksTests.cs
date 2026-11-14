@@ -15,7 +15,7 @@ public class UsbChecksTests
     {
         var f = UsbChecks.EvaluatePresence(null);
         Assert.Equal(Severity.Blocker, f.Severity);
-        Assert.Equal(FindingAction.Guide, f.Action);
+        Assert.Equal(FindingAction.None, f.Action);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class UsbChecksTests
         var hub = new UsbHub(@"USB\VID_2109&PID_0822\1", "Generic SuperSpeed USB Hub", IsRootHub: false, IsBuiltIn: false);
         var f = UsbChecks.EvaluateHub(Dongle(hubs: hub));
         Assert.Equal(Severity.Warning, f.Severity);
-        Assert.Equal(FindingAction.Guide, f.Action);
+        Assert.Equal(FindingAction.None, f.Action);
     }
 
     [Fact]

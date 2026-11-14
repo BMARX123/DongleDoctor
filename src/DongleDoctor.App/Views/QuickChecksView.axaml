@@ -7,10 +7,9 @@
     <DockPanel>
         <TextBlock DockPanel.Dock="Top" Classes="h" Text="Checking your setup" Margin="0,0,0,14" />
 
-        <!-- There's no results screen yet, so "Check again" re-runs the checks in place. -->
         <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto">
             <TextBlock Classes="small" VerticalAlignment="Center" Text="{Binding Progress}" />
-            <Button Grid.Column="1" Classes="ghost" Content="Check again" Command="{Binding CheckAgainCommand}" />
+            <Button Grid.Column="1" Classes="primary" Content="See results" Command="{Binding SeeResultsCommand}" />
         </Grid>
 
         <ItemsControl ItemsSource="{Binding Rows}">
