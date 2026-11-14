@@ -425,6 +425,8 @@ test-results/
 # Mac bundle stuff
 *.dmg
 *.app
+# Git on Windows ignores case, so *.app would also hide the DongleDoctor.App project.
+!/src/DongleDoctor.App/
 
 # content below from: https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
 # General
