@@ -74,6 +74,23 @@ public class ScanAnalysisTests
     }
 
     [Fact]
+    public void ReadableLogWithNothingInIt_MeansNoStream()
+    {
+        // The Frame answers pings while idle, so pings alone mustn't pass for a stream when the log is readable.
+        var r = ScanAnalysis.Analyze([new(TimeSpan.Zero, ScanEventKind.LogOpened), Ping(5, 2), Ping(10, 2)], FiveMinutes);
+        Assert.True(r.UsedSteamLog);
+        Assert.False(r.StreamDetected);
+        Assert.Equal(0, r.Summary.Hiccups);
+    }
+
+    [Fact]
+    public void WithoutSteamLog_NoPingReplies_MeansNoStream()
+    {
+        var r = ScanAnalysis.Analyze([Ping(5, 500), Ping(10, 500)], FiveMinutes);
+        Assert.False(r.StreamDetected);
+    }
+
+    [Fact]
     public void ThrottlesWithoutMarks_UseTheWholeScan() =>
         Assert.Equal(FiveMinutes, ScanAnalysis.Analyze([Throttle(10, 300)], FiveMinutes).Summary.Duration);
 }

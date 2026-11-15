@@ -4,7 +4,10 @@ using Avalonia.Markup.Xaml;
 using DongleDoctor.App.ViewModels;
 using DongleDoctor.App.Views;
 using DongleDoctor.Core.Checks;
+using DongleDoctor.Core.Diagnostics;
+using DongleDoctor.Platform.Windows;
 using DongleDoctor.Platform.Windows.Adapter;
+using DongleDoctor.Platform.Windows.Scan;
 using DongleDoctor.Platform.Windows.Power;
 using DongleDoctor.Platform.Windows.Usb;
 
@@ -21,12 +24,14 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainViewModel(
-                    () => InstantChecks.Create(new WindowsUsbTopology(), new WindowsDongleDriverSettings(), new WindowsPowerSettings()),
-                    () => desktop.Shutdown()),
-            };
+            var window = new MainWindow();
+            window.DataContext = new MainViewModel(
+                () => InstantChecks.Create(new WindowsUsbTopology(), new WindowsDongleDriverSettings(), new WindowsPowerSettings()),
+                () => [new SteamLogProbe(), new IcmpProbe()],
+                () => Attention.Notify(window.TryGetPlatformHandle()?.Handle ?? 0),
+                () => desktop.Shutdown(),
+                new RunLog(RunLog.DefaultDirectory));
+            desktop.MainWindow = window;
         }
 
         base.OnFrameworkInitializationCompleted();

@@ -1,7 +1,14 @@
 namespace DongleDoctor.Core.Scan;
 
 /// <summary>Live progress for the Scanning screen.</summary>
-public sealed record ScanProgress(TimeSpan Elapsed, TimeSpan Duration, int HiccupsSoFar);
+/// <param name="HiccupTimes">When each hiccup so far started, from the start of the scan.</param>
+public sealed record ScanProgress(TimeSpan Elapsed, TimeSpan Duration, IReadOnlyList<TimeSpan> HiccupTimes, bool StreamDetected)
+{
+    public int HiccupsSoFar => HiccupTimes.Count;
+
+    internal static ScanProgress From(ScanReport report, TimeSpan duration) =>
+        new(report.Elapsed, duration, [.. report.Hiccups.Select(h => h.Start < TimeSpan.Zero ? TimeSpan.Zero : h.Start)], report.StreamDetected);
+}
 
 /// <summary>Runs the probes for a fixed time, then analyzes what they saw. Use a new session for each scan.</summary>
 public sealed class ScanSession(IReadOnlyList<IProbe> probes, TimeProvider? time = null)
@@ -29,7 +36,7 @@ public sealed class ScanSession(IReadOnlyList<IProbe> probes, TimeProvider? time
             {
                 while (await timer.WaitForNextTickAsync(end.Token).ConfigureAwait(false))
                 {
-                    progress?.Report(new ScanProgress(clock.Now, duration, Analyze(clock.Now).Hiccups.Count));
+                    progress?.Report(ScanProgress.From(Analyze(clock.Now), duration));
                 }
             }
             catch (OperationCanceledException)
@@ -40,7 +47,7 @@ public sealed class ScanSession(IReadOnlyList<IProbe> probes, TimeProvider? time
 
         await Task.WhenAll(running).ConfigureAwait(false);
         var report = Analyze(clock.Now);
-        progress?.Report(new ScanProgress(report.Elapsed, duration, report.Hiccups.Count));
+        progress?.Report(ScanProgress.From(report, duration));
         return report;
     }
 

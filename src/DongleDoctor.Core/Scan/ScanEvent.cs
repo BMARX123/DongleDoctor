@@ -10,6 +10,12 @@ public enum ScanEventKind
 
     /// <summary>One ping to the Frame; <see cref="ScanEvent.Ms"/> is the round trip, or the timeout if no reply came.</summary>
     Ping,
+
+    /// <summary>
+    /// The Steam log was found and is being read, so its silence means the Frame isn't streaming rather than that the
+    /// log is unavailable.
+    /// </summary>
+    LogOpened,
 }
 
 /// <summary>Something a probe saw, timed from the start of the scan.</summary>

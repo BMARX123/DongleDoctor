@@ -42,6 +42,20 @@ public class ScanSessionTests
         Assert.All(updates, u => Assert.Equal(TimeSpan.FromMilliseconds(1200), u.Duration));
     }
 
+    [Fact]
+    public async Task Progress_HasHiccupTimes_AndWhetherStreaming()
+    {
+        var updates = new List<ScanProgress>();
+        var probe = new FakeProbe(
+            new ScanEvent(TimeSpan.Zero, ScanEventKind.LogOpened),
+            new ScanEvent(TimeSpan.FromMilliseconds(400), ScanEventKind.Throttle, 300));
+        await new ScanSession([probe]).RunAsync(TimeSpan.FromMilliseconds(700), new SyncProgress(updates.Add));
+
+        var last = updates[^1];
+        Assert.True(last.StreamDetected);
+        Assert.Equal(TimeSpan.FromMilliseconds(100), Assert.Single(last.HiccupTimes));
+    }
+
     private sealed class FakeProbe(params ScanEvent[] events) : IProbe
     {
         public bool WasCancelled { get; private set; }

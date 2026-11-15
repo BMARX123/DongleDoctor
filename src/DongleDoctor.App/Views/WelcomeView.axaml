@@ -12,9 +12,9 @@
         </Border>
         <TextBlock Classes="h" TextAlignment="Center" Text="Let's get your Steam Frame streaming smoothly" />
         <TextBlock Classes="sub" TextAlignment="Center"
-                   Text="We'll check how your dongle is plugged in, then watch your connection while you play for a few minutes." />
+                   Text="We'll check how your dongle is plugged in, then you can scan your connection while you play." />
         <Button Classes="primary" HorizontalAlignment="Center" Content="Check my setup" Command="{Binding StartCommand}" />
-        <TextBlock Classes="small" HorizontalAlignment="Center" Text="Takes about 5 minutes · Nothing changes unless you say so" />
+        <TextBlock Classes="small" HorizontalAlignment="Center" Text="Checks take seconds · Nothing changes unless you say so" />
     </StackPanel>
 
 </UserControl>

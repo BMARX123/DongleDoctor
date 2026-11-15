@@ -35,12 +35,19 @@ public sealed class SteamLogProbe(string? logPath = null) : IProbe
         var pending = new StringBuilder();
         var buffer = new byte[64 * 1024];
         var chars = new char[Encoding.UTF8.GetMaxCharCount(buffer.Length)];
+        var opened = false;
 
         while (!cancellationToken.IsCancellationRequested)
         {
             if (File.Exists(path))
             {
                 using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                if (!opened)
+                {
+                    opened = true;
+                    emit(new ScanEvent(clock.Now, ScanEventKind.LogOpened));
+                }
+
                 var currentHeader = ReadHeader(stream);
                 if (stream.Length < position || !currentHeader.StartsWith(header, StringComparison.Ordinal))
                 {
