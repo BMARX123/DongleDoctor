@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DongleDoctor.App.ViewModels"
+             xmlns:v="using:DongleDoctor.App.Views"
+             x:Class="DongleDoctor.App.Views.WifiView"
+             x:DataType="vm:WifiViewModel">
+
+    <Panel>
+        <!-- Checking for a stream, or sweeping. -->
+        <StackPanel IsVisible="{Binding IsBusy}" VerticalAlignment="Center" Spacing="14">
+            <ProgressBar IsIndeterminate="True" Width="160" HorizontalAlignment="Center" />
+            <TextBlock Classes="sub" TextAlignment="Center" Text="{Binding BusyText}" />
+        </StackPanel>
+
+        <!-- The Frame is streaming: a sweep could cause a hiccup, so ask the user to stop first. -->
+        <DockPanel IsVisible="{Binding IsStopStreaming}">
+            <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Center" Content="I've stopped streaming"
+                    Command="{Binding StoppedStreamingCommand}" />
+            <StackPanel VerticalAlignment="Center" Spacing="14">
+                <TextBlock Classes="h" TextAlignment="Center" Text="Stop streaming for a moment" />
+                <TextBlock Classes="sub" TextAlignment="Center"
+                           Text="Next we check the Wi-Fi around your Frame. That briefly takes the dongle off your Frame's channel, so quit your game and SteamVR on your Frame first." />
+                <Border Classes="verdict away" IsVisible="{Binding StillStreaming}">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="Your Frame is still streaming" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
+                        <TextBlock Text="Quit the game and SteamVR on your Frame, then try again." FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource DdInk2Brush}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Results -->
+        <DockPanel IsVisible="{Binding IsResults}">
+            <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,12">
+                <TextBlock Classes="h" FontSize="20" Text="{Binding Finding.Title, FallbackValue=''}" />
+                <TextBlock Classes="sub" Text="{Binding Finding.Description, FallbackValue=''}" />
+            </StackPanel>
+
+            <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
+                <Button Classes="ghost" Content="Check again" Command="{Binding SweepAgainCommand}" />
+                <Button Grid.Column="2" Classes="primary" Content="Continue" Command="{Binding ContinueCommand}" />
+            </Grid>
+
+            <ScrollViewer>
+                <StackPanel Spacing="10">
+                    <StackPanel Spacing="4" IsVisible="{Binding Chart, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <v:WifiChannelChart Height="110" Chart="{Binding Chart}"
+                                            FrameBrush="{DynamicResource DdAccentBrush}" ConflictBrush="{DynamicResource DdWarnBrush}"
+                                            OtherBrush="{DynamicResource DdInk2Brush}" TextBrush="{DynamicResource DdInk2Brush}" />
+                        <TextBlock Classes="small" TextWrapping="Wrap" Text="{Binding LinkSummary}" />
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding Conflicts}" IsVisible="{Binding HasConflicts}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:WifiNetworkRow">
+                                <Border Classes="finding">
+                                    <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
+                                        <Border Classes="stripe warn" />
+                                        <StackPanel Grid.Column="1" Margin="0,8">
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource DdInkBrush}" />
+                                            <TextBlock Text="{Binding Detail}" FontSize="12" Foreground="{DynamicResource DdInk2Brush}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Classes="small" TextWrapping="Wrap" Text="{Binding OthersSummary}" />
+                    <TextBlock Classes="small" TextWrapping="Wrap"
+                               Text="This shows Wi-Fi networks only. Other things that use the same radio waves, like Bluetooth or microwaves, don't show up here." />
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Panel>
+
+</UserControl>
