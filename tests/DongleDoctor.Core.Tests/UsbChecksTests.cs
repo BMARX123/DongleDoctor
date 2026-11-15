@@ -71,9 +71,34 @@ public class UsbChecksTests
         Assert.Equal(Severity.Warning, UsbChecks.EvaluateHub(Dongle(UsbSpeed.SuperSpeed, 0, external, builtIn)).Severity);
     }
 
+    [Fact]
+    public void SharedController_Webcam_WarnsAndNamesIt()
+    {
+        var f = UsbChecks.EvaluateSharedController(Dongle() with
+        {
+            Neighbors = [new(@"USB\VID_046D&PID_085E\1", "Logitech BRIO", IsVideo: true), new(@"USB\VID_1\1", "Keyboard", IsVideo: false)],
+        });
+        Assert.Equal(Severity.Warning, f.Severity);
+        Assert.Contains("Logitech BRIO", f.Description);
+        Assert.DoesNotContain("Keyboard", f.Description);
+        Assert.Contains("Keyboard", f.Details);
+    }
+
+    [Fact]
+    public void SharedController_NoVideo_Passes() =>
+        Assert.Equal(Severity.Pass, UsbChecks.EvaluateSharedController(Dongle() with
+        {
+            Neighbors = [new(@"USB\VID_1\1", "Keyboard", IsVideo: false)],
+        }).Severity);
+
+    [Fact]
+    public void SharedController_NoNeighbors_Passes() =>
+        Assert.Equal(Severity.Pass, UsbChecks.EvaluateSharedController(Dongle()).Severity);
+
     [Theory]
     [InlineData("usb.speed")]
     [InlineData("usb.hub")]
+    [InlineData("usb.shared-controller")]
     public async Task NoDongle_DependentChecksSkip(string id)
     {
         var check = UsbChecks.Create(new FakeTopology(null)).Single(c => c.Id == id);

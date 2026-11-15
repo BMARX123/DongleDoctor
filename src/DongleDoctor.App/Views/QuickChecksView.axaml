@@ -12,30 +12,32 @@
             <Button Grid.Column="1" Classes="primary" Content="See results" Command="{Binding SeeResultsCommand}" />
         </Grid>
 
-        <ItemsControl ItemsSource="{Binding Rows}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="vm:CheckRowViewModel">
-                    <Border BorderBrush="{DynamicResource DdLineBrush}" BorderThickness="0,0,0,1" Padding="2,9">
-                        <Grid ColumnDefinitions="22,*" ColumnSpacing="10">
-                            <Border Classes="ic" VerticalAlignment="Top" Margin="0,1,0,0"
-                                    Classes.good="{Binding IsGood}" Classes.warn="{Binding IsWarning}" Classes.crit="{Binding IsBlocker}">
-                                <Panel>
-                                    <TextBlock Text="{Binding Icon}" />
-                                    <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsRunning}" MinWidth="0" Width="16" Height="3"
-                                                 HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Panel>
-                            </Border>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
-                                           Foreground="{DynamicResource DdInkBrush}" />
-                                <TextBlock Text="{Binding Description}" FontSize="13" TextWrapping="Wrap"
-                                           Foreground="{DynamicResource DdInk2Brush}" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Rows}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:CheckRowViewModel">
+                        <Border BorderBrush="{DynamicResource DdLineBrush}" BorderThickness="0,0,0,1" Padding="2,9">
+                            <Grid ColumnDefinitions="22,*" ColumnSpacing="10">
+                                <Border Classes="ic" VerticalAlignment="Top" Margin="0,1,0,0"
+                                        Classes.good="{Binding IsGood}" Classes.warn="{Binding IsWarning}" Classes.crit="{Binding IsBlocker}">
+                                    <Panel>
+                                        <TextBlock Text="{Binding Icon}" />
+                                        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsRunning}" MinWidth="0" Width="16" Height="3"
+                                                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Panel>
+                                </Border>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource DdInkBrush}" />
+                                    <TextBlock Text="{Binding Description}" FontSize="13" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource DdInk2Brush}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </DockPanel>
 
 </UserControl>

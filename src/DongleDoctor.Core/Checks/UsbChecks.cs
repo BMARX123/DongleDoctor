@@ -13,10 +13,36 @@ public static class UsbChecks
         var dongle = new Lazy<DongleConnection?>(topology.FindDongle, LazyThreadSafetyMode.ExecutionAndPublication);
         return
         [
-            new UsbCheck("usb.dongle-present", "Finding your dongle", dongle, EvaluatePresence),
-            new UsbCheck("usb.speed", "Checking the USB connection", dongle, EvaluateSpeed),
-            new UsbCheck("usb.hub", "Checking how it's plugged in", dongle, EvaluateHub),
+            new SharedReadCheck<DongleConnection?>("usb.dongle-present", "Finding your dongle", dongle, EvaluatePresence),
+            new SharedReadCheck<DongleConnection?>("usb.speed", "Checking the USB connection", dongle, EvaluateSpeed),
+            new SharedReadCheck<DongleConnection?>("usb.hub", "Checking how it's plugged in", dongle, EvaluateHub),
+            new SharedReadCheck<DongleConnection?>("usb.shared-controller", "Checking what shares its USB controller", dongle, EvaluateSharedController),
         ];
+    }
+
+    internal static Finding EvaluateSharedController(DongleConnection? dongle)
+    {
+        const string id = "usb.shared-controller";
+        if (dongle is null)
+        {
+            return Skipped(id);
+        }
+
+        var neighbors = dongle.Neighbors ?? [];
+        var details = neighbors.Count == 0
+            ? "No other devices on this controller"
+            : "Also on this controller: " + string.Join(", ", neighbors.Select(n => n.Name + (n.IsVideo ? " (video)" : "")));
+        var video = neighbors.Where(n => n.IsVideo).Select(n => n.Name).ToList();
+        if (video.Count > 0)
+        {
+            return new Finding(id, Severity.Warning, "A camera shares your dongle's USB connection",
+                $"{string.Join(", ", video)} sends video all the time, over the same connection inside your PC as the dongle. " +
+                "Unplug it while you play, or plug the dongle into a USB port in a different spot on your PC.",
+                Details: details);
+        }
+
+        return new Finding(id, Severity.Pass, "Nothing busy shares its USB connection", "No cameras or capture cards on the same controller",
+            Details: details);
     }
 
     internal static Finding EvaluatePresence(DongleConnection? dongle)
@@ -86,16 +112,7 @@ public static class UsbChecks
             "Through your PC's built-in USB hub, which is fine", Details: chain);
     }
 
-    private static Finding Skipped(string id) =>
+    /// <summary>For checks that need the dongle when it isn't plugged in.</summary>
+    internal static Finding Skipped(string id) =>
         new(id, Severity.Info, "Skipped", "Needs the dongle to be plugged in.");
-
-    private sealed class UsbCheck(string id, string name, Lazy<DongleConnection?> dongle, Func<DongleConnection?, Finding> evaluate) : ICheck
-    {
-        public string Id => id;
-
-        public string Name => name;
-
-        public Task<Finding> RunAsync(CancellationToken cancellationToken = default) =>
-            Task.Run(() => evaluate(dongle.Value), cancellationToken);
-    }
 }

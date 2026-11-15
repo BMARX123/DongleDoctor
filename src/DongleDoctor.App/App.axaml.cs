@@ -3,6 +3,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using DongleDoctor.App.ViewModels;
 using DongleDoctor.App.Views;
+using DongleDoctor.Core.Checks;
+using DongleDoctor.Platform.Windows.Adapter;
+using DongleDoctor.Platform.Windows.Power;
 using DongleDoctor.Platform.Windows.Usb;
 
 namespace DongleDoctor.App;
@@ -20,7 +23,9 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(new WindowsUsbTopology(), () => desktop.Shutdown()),
+                DataContext = new MainViewModel(
+                    () => InstantChecks.Create(new WindowsUsbTopology(), new WindowsDongleDriverSettings(), new WindowsPowerSettings()),
+                    () => desktop.Shutdown()),
             };
         }
 
