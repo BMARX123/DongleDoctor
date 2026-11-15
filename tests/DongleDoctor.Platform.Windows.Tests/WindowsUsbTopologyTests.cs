@@ -34,5 +34,6 @@ public class WindowsUsbTopologyTests(ITestOutputHelper output)
 
     private static string Describe(DongleConnection d) =>
         $"{d.Name} [{d.InstanceId}] speed={d.Speed} problem={d.ProblemCode}{Environment.NewLine}" +
-        string.Join(Environment.NewLine, d.ParentHubs.Select(h => $"  ← {h.Name} [{h.InstanceId}] root={h.IsRootHub} builtIn={h.IsBuiltIn}"));
+        string.Join(Environment.NewLine, d.ParentHubs.Select(h => $"  ← {h.Name} [{h.InstanceId}] root={h.IsRootHub} builtIn={h.IsBuiltIn}")) +
+        Environment.NewLine + string.Join(Environment.NewLine, (d.Neighbors ?? []).Select(n => $"  ~ {n.Name} [{n.InstanceId}] video={n.IsVideo}"));
 }

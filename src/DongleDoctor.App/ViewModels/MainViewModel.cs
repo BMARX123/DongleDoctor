@@ -2,19 +2,18 @@ using System;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DongleDoctor.Core.Checks;
-using DongleDoctor.Core.Usb;
 
 namespace DongleDoctor.App.ViewModels;
 
 /// <summary>Owns the wizard: which screen is showing.</summary>
 public partial class MainViewModel : ViewModelBase
 {
-    private readonly IUsbTopology _usb;
+    private readonly Func<IReadOnlyList<ICheck>> _createChecks;
     private readonly Action _close;
 
-    public MainViewModel(IUsbTopology usb, Action close)
+    public MainViewModel(Func<IReadOnlyList<ICheck>> createChecks, Action close)
     {
-        _usb = usb;
+        _createChecks = createChecks;
         _close = close;
         CurrentPage = new WelcomeViewModel(StartChecks);
     }
@@ -24,7 +23,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void StartChecks()
     {
-        var checks = new QuickChecksViewModel(_usb, ShowResult);
+        var checks = new QuickChecksViewModel(_createChecks, ShowResult);
         CurrentPage = checks;
         _ = checks.RunAsync();
     }

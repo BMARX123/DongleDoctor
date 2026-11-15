@@ -19,3 +19,11 @@ DEVPKEY_Device_Parent
 DEVPKEY_Device_Address
 DEVPKEY_Device_InLocalMachineContainer
 DEVPKEY_NAME
+PowerGetActiveScheme
+PowerReadACValueIndex
+PowerReadDCValueIndex
+PowerReadFriendlyName
+LocalFree
+GetSystemPowerStatus
+DEVPKEY_Device_CompatibleIds
+DEVPKEY_Device_Driver

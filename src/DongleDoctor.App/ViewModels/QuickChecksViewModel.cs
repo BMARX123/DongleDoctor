@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DongleDoctor.Core.Checks;
-using DongleDoctor.Core.Usb;
 
 namespace DongleDoctor.App.ViewModels;
 
@@ -14,7 +13,7 @@ namespace DongleDoctor.App.ViewModels;
 /// The Quick checks screen: runs the instant checks and shows each row as it finishes. The checks take
 /// milliseconds, so it waits for the user to press See results rather than flashing past.
 /// </summary>
-public partial class QuickChecksViewModel(IUsbTopology usb, Action<IReadOnlyList<Finding>> showResults) : ViewModelBase
+public partial class QuickChecksViewModel(Func<IReadOnlyList<ICheck>> createChecks, Action<IReadOnlyList<Finding>> showResults) : ViewModelBase
 {
     private IReadOnlyList<Finding>? _findings;
 
@@ -32,7 +31,7 @@ public partial class QuickChecksViewModel(IUsbTopology usb, Action<IReadOnlyList
 
     public async Task RunAsync()
     {
-        var checks = UsbChecks.Create(usb);
+        var checks = createChecks();
         foreach (var check in checks)
         {
             Rows.Add(new CheckRowViewModel(check.Name));

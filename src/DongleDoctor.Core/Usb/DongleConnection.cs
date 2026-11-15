@@ -26,15 +26,21 @@ public enum UsbSpeed
 /// </param>
 public sealed record UsbHub(string InstanceId, string Name, bool IsRootHub, bool IsBuiltIn);
 
+/// <summary>Another USB device on the same host controller as the dongle.</summary>
+/// <param name="IsVideo">A USB video-class device, such as a webcam or capture card, which streams all the time.</param>
+public sealed record UsbNeighbor(string InstanceId, string Name, bool IsVideo);
+
 /// <summary>Where and how the dongle is connected.</summary>
 /// <param name="ParentHubs">Nearest hub first; the last entry is the root hub.</param>
 /// <param name="ProblemCode">The device manager problem code; 0 means the device works.</param>
+/// <param name="Neighbors">The other devices on the dongle's host controller, not counting hubs.</param>
 public sealed record DongleConnection(
     string InstanceId,
     string Name,
     UsbSpeed Speed,
     IReadOnlyList<UsbHub> ParentHubs,
-    uint ProblemCode = 0)
+    uint ProblemCode = 0,
+    IReadOnlyList<UsbNeighbor>? Neighbors = null)
 {
     /// <summary>Hubs other than the root hub, nearest first.</summary>
     public IEnumerable<UsbHub> Hubs => ParentHubs.Where(h => !h.IsRootHub);

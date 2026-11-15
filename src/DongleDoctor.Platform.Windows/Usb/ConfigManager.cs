@@ -48,6 +48,12 @@ internal static unsafe class ConfigManager
         return bytes is null ? null : MemoryMarshal.Cast<byte, char>(bytes).ToString().TrimEnd('\0');
     }
 
+    public static IReadOnlyList<string> GetStringList(uint devInst, DEVPROPKEY key)
+    {
+        var bytes = GetProperty(devInst, key, DEVPROPTYPE.DEVPROP_TYPE_STRING_LIST);
+        return bytes is null ? [] : SplitMultiString(MemoryMarshal.Cast<byte, char>(bytes));
+    }
+
     public static uint? GetUInt32(uint devInst, DEVPROPKEY key)
     {
         var bytes = GetProperty(devInst, key, DEVPROPTYPE.DEVPROP_TYPE_UINT32);
