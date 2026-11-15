@@ -11,6 +11,7 @@
         <DataTemplate DataType="vm:ResultViewModel"><v:ResultView /></DataTemplate>
         <DataTemplate DataType="vm:StartScanViewModel"><v:StartScanView /></DataTemplate>
         <DataTemplate DataType="vm:ScanningViewModel"><v:ScanningView /></DataTemplate>
+        <DataTemplate DataType="vm:WifiViewModel"><v:WifiView /></DataTemplate>
     </Application.DataTemplates>
 
     <!-- Brand colours, light and dark. Accent #1A9FFF takes dark text: white on it is only 2.9:1 contrast. -->

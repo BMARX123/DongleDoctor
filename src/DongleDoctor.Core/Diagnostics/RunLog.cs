@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using DongleDoctor.Core.Checks;
 using DongleDoctor.Core.Scan;
+using DongleDoctor.Core.Wifi;
 
 namespace DongleDoctor.Core.Diagnostics;
 
@@ -27,6 +28,52 @@ public sealed class RunLog(string directory, int keep = 20)
     /// <param name="chimePlayed">Whether the end-of-scan sound started; null when none was due (stopped early).</param>
     public void Scan(DateTime started, TimeSpan requested, bool stoppedEarly, ScanReport report, bool? chimePlayed) =>
         Write(FormatScan(started, requested, stoppedEarly, report, chimePlayed), prune: false);
+
+    /// <summary>Adds a Wi-Fi sweep to the current log file. Network names and addresses are left out.</summary>
+    public void Wifi(WifiSurvey? survey, IReadOnlyList<Finding> findings) => Write(FormatWifi(survey, findings), prune: false);
+
+    internal static string FormatWifi(WifiSurvey? survey, IReadOnlyList<Finding> findings)
+    {
+        var s = new StringBuilder();
+        s.AppendLine();
+        s.AppendLine("Wi-Fi");
+        foreach (var finding in findings)
+        {
+            s.AppendLine(Invariant($"  {finding.Severity,-8} {finding.CheckId}: {finding.Title}"));
+        }
+
+        if (survey?.Frame is { } f)
+        {
+            s.AppendLine(Invariant($"  Frame:   {WifiAnalysis.BandName(f.Band)} ch {f.ChannelRange}, {f.WidthMhz} MHz, {f.Rssi} dBm"));
+        }
+
+        if (survey?.Link is { } l)
+        {
+            s.AppendLine(Invariant($"  Link:    {l.SignalPercent}%, rx {l.RxMbps} Mbps, tx {l.TxMbps} Mbps"));
+        }
+
+        if (survey is not null)
+        {
+            var bands = survey.Networks.GroupBy(n => n.Band).OrderBy(g => g.Key)
+                .Select(g => Invariant($"{WifiAnalysis.BandName(g.Key)} {g.Count()}"));
+            s.AppendLine(Invariant($"  Radios:  {survey.Networks.Count} ({string.Join(", ", bands)})"));
+            foreach (var n in survey.Conflicts)
+            {
+                s.AppendLine(Invariant($"  Overlap: ch {n.Channel}/{n.WidthMhz} MHz, {n.Rssi} dBm, load {(n.LoadPercent is { } p ? $"{p}%" : "-")}"));
+            }
+
+            s.AppendLine(Invariant($"  Weak overlaps: {survey.WeakOverlaps.Count}"));
+        }
+        else
+        {
+            foreach (var details in findings.Select(f => f.Details).OfType<string>())
+            {
+                s.AppendLine(Invariant($"  {details}"));
+            }
+        }
+
+        return s.ToString();
+    }
 
     internal static string FormatChecks(IReadOnlyList<Finding> findings, DateTime now)
     {

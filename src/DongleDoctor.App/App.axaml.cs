@@ -8,6 +8,7 @@ using DongleDoctor.Core.Diagnostics;
 using DongleDoctor.Platform.Windows;
 using DongleDoctor.Platform.Windows.Adapter;
 using DongleDoctor.Platform.Windows.Scan;
+using DongleDoctor.Platform.Windows.Wifi;
 using DongleDoctor.Platform.Windows.Power;
 using DongleDoctor.Platform.Windows.Usb;
 
@@ -28,6 +29,7 @@ public partial class App : Application
             window.DataContext = new MainViewModel(
                 () => InstantChecks.Create(new WindowsUsbTopology(), new WindowsDongleDriverSettings(), new WindowsPowerSettings()),
                 () => [new SteamLogProbe(), new IcmpProbe()],
+                new WindowsWifiSurveyor(),
                 () => Attention.Notify(window.TryGetPlatformHandle()?.Handle ?? 0),
                 () => desktop.Shutdown(),
                 new RunLog(RunLog.DefaultDirectory));
