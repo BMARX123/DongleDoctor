@@ -113,6 +113,28 @@ public class WifiSurveyTests
         Assert.Equal(Severity.Info, WifiAnalysis.ToFinding(survey).Severity);
     }
 
+    [Theory]
+    [InlineData(WifiBand.Ghz5, Severity.Warning)]
+    [InlineData(WifiBand.Ghz24, Severity.Warning)]
+    [InlineData(WifiBand.Ghz6, Severity.Pass)]
+    public void Band_WarnsUnlessSixGhz(WifiBand band, Severity expected)
+    {
+        var finding = WifiAnalysis.BandFinding(Net(37, 160, band));
+        Assert.Equal(WifiAnalysis.BandCheckId, finding.CheckId);
+        Assert.Equal(expected, finding.Severity);
+    }
+
+    [Fact]
+    public void Findings_AreBandThenChannel_OrOnlyChannelWithoutTheFrame()
+    {
+        var withFrame = WifiAnalysis.Analyze(new WifiSweep(
+            new WifiLink(FrameBssid, 100, 1201, 1201), [Entry("", FrameBssid, 36, -46, Vht80)]));
+        Assert.Equal([WifiAnalysis.BandCheckId, WifiAnalysis.CheckId], WifiAnalysis.ToFindings(withFrame).Select(f => f.CheckId));
+
+        var without = WifiAnalysis.Analyze(new WifiSweep(null, []));
+        Assert.Equal([WifiAnalysis.CheckId], WifiAnalysis.ToFindings(without).Select(f => f.CheckId));
+    }
+
     [Fact]
     public void ClearChannel_Passes()
     {

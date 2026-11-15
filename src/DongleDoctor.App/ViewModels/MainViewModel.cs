@@ -18,7 +18,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly Action _close;
     private readonly RunLog _log;
     private IReadOnlyList<Finding> _checkFindings = [];
-    private Finding? _wifiFinding;
+    private IReadOnlyList<Finding> _wifiFindings = [];
 
     /// <param name="scanFinished">Gets the user's attention: they're in the headset when a scan ends. Returns whether the sound played.</param>
     public MainViewModel(
@@ -42,11 +42,11 @@ public partial class MainViewModel : ViewModelBase
     public partial ViewModelBase CurrentPage { get; set; }
 
     /// <summary>The instant checks plus the Wi-Fi sweep, once it has run.</summary>
-    private IReadOnlyList<Finding> Findings => _wifiFinding is null ? _checkFindings : [.. _checkFindings, _wifiFinding];
+    private IReadOnlyList<Finding> Findings => [.. _checkFindings, .. _wifiFindings];
 
     private void StartChecks()
     {
-        _wifiFinding = null;
+        _wifiFindings = [];
         var checks = new QuickChecksViewModel(_createChecks, findings =>
         {
             _checkFindings = findings;
@@ -70,12 +70,12 @@ public partial class MainViewModel : ViewModelBase
     private void ShowWifi()
     {
         WifiViewModel? wifi = null;
-        wifi = new WifiViewModel(_surveyor, (survey, finding) =>
+        wifi = new WifiViewModel(_surveyor, (survey, findings) =>
         {
-            _wifiFinding = finding;
-            _log.Wifi(survey, finding);
+            _wifiFindings = findings;
+            _log.Wifi(survey, findings);
             CurrentPage = new StartScanViewModel(StartScan, () => CurrentPage = wifi!);
-        });
+        }, Guides.Open);
         CurrentPage = wifi;
         _ = wifi.RunAsync();
     }

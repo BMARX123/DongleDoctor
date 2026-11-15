@@ -95,6 +95,8 @@ public static class WifiAnalysis
 {
     public const string CheckId = "wifi.channel";
 
+    public const string BandCheckId = "wifi.band";
+
     /// <summary>An overlapping network this strong or stronger is a conflict. About 60% signal; provisional.</summary>
     public const int ConflictRssi = -70;
 
@@ -118,6 +120,27 @@ public static class WifiAnalysis
             others,
             [.. overlapping.Where(n => n.Rssi >= ConflictRssi)],
             [.. overlapping.Where(n => n.Rssi < ConflictRssi)]);
+    }
+
+    /// <summary>The band check, then the channel check. Without the Frame there's only the channel check, saying so.</summary>
+    public static IReadOnlyList<Finding> ToFindings(WifiSurvey survey) =>
+        survey.Frame is { } frame ? [BandFinding(frame), ToFinding(survey)] : [ToFinding(survey)];
+
+    /// <summary>
+    /// The dongle supports 6 GHz, the clearest band, but the Frame picks the band. The Frame's own Wi-Fi chip also
+    /// connects it to the home network, and when that connection is on 6 GHz, the Frame puts the dongle's link on
+    /// 5 GHz instead.
+    /// </summary>
+    public static Finding BandFinding(WifiNetwork frame)
+    {
+        var details = string.Create(CultureInfo.InvariantCulture,
+            $"Frame link: {BandName(frame.Band)} ch {frame.Channel}, {frame.WidthMhz} MHz, {frame.Rssi} dBm");
+        return frame.Band == WifiBand.Ghz6
+            ? new Finding(BandCheckId, Severity.Pass, "Your Frame is using 6 GHz",
+                "6 GHz is the clearest band for streaming.", Details: details)
+            : new Finding(BandCheckId, Severity.Warning, "Your Frame isn't using 6 GHz",
+                $"Your Frame streams on {BandName(frame.Band)}, which nearby Wi-Fi shares. This usually happens when your Frame's own Wi-Fi is connected to a 6 GHz network. Connect your Frame to your router's 5 GHz or 2.4 GHz network instead.",
+                FindingAction.Guide, details);
     }
 
     public static Finding ToFinding(WifiSurvey survey)

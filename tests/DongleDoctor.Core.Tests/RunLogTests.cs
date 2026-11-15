@@ -63,7 +63,9 @@ public sealed class RunLogTests : IDisposable
                 new BssEntry("Neighbour Net", [0, 5, 5, 5, 5, 5], 5220, -55, vht80),
             ]));
 
-        var text = RunLog.FormatWifi(survey, WifiAnalysis.ToFinding(survey));
+        var text = RunLog.FormatWifi(survey, WifiAnalysis.ToFindings(survey));
+
+        Assert.Contains("Warning  wifi.band: Your Frame isn't using 6 GHz", text);
 
         Assert.Contains("Frame:   5 GHz ch 36–48, 80 MHz, -46 dBm", text);
         Assert.Contains("Overlap: ch 44/80 MHz, -55 dBm", text);

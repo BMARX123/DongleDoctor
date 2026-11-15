@@ -21,7 +21,8 @@ public enum WifiStep
 /// The "Wi-Fi around your Frame" screen. A sweep takes the dongle off the Frame's channel, so it only runs once the
 /// Frame isn't streaming: until then the user is asked to stop, and asked again if they're still streaming.
 /// </summary>
-public partial class WifiViewModel(IWifiSurveyor surveyor, Action<WifiSurvey?, Finding> finished) : ViewModelBase
+public partial class WifiViewModel(
+    IWifiSurveyor surveyor, Action<WifiSurvey?, IReadOnlyList<Finding>> finished, Action<string> openGuide) : ViewModelBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsBusy), nameof(IsStopStreaming), nameof(IsResults), nameof(BusyText))]
@@ -40,7 +41,19 @@ public partial class WifiViewModel(IWifiSurveyor surveyor, Action<WifiSurvey?, F
     public partial bool StillStreaming { get; set; }
 
     [ObservableProperty]
-    public partial Finding? Finding { get; set; }
+    [NotifyPropertyChangedFor(nameof(Headline))]
+    public partial IReadOnlyList<Finding> Findings { get; set; } = [];
+
+    /// <summary>The findings as rows, each with its severity stripe and guide button.</summary>
+    public IReadOnlyList<FindingRowViewModel> FindingRows => [.. Findings.Select(f => new FindingRowViewModel(f, openGuide))];
+
+    public string Headline => Findings.Any(f => f.Severity >= Severity.Warning)
+        ? "Your Frame's Wi-Fi could be better"
+        : Findings.Any(f => f.Severity == Severity.Info)
+            ? Findings.First(f => f.Severity == Severity.Info).Title
+            : "The Wi-Fi around your Frame looks good";
+
+    partial void OnFindingsChanged(IReadOnlyList<Finding> value) => OnPropertyChanged(nameof(FindingRows));
 
     [ObservableProperty]
     public partial string LinkSummary { get; set; } = "";
@@ -71,13 +84,16 @@ public partial class WifiViewModel(IWifiSurveyor surveyor, Action<WifiSurvey?, F
         try
         {
             _survey = WifiAnalysis.Analyze(await surveyor.SweepAsync());
-            Finding = WifiAnalysis.ToFinding(_survey);
+            Findings = WifiAnalysis.ToFindings(_survey);
         }
         catch (Exception e)
         {
             _survey = null;
-            Finding = new Finding(WifiAnalysis.CheckId, Severity.Info, "Couldn't check the Wi-Fi around you",
-                "The dongle didn't answer. You can still scan while you play.", Details: e.Message);
+            Findings =
+            [
+                new Finding(WifiAnalysis.CheckId, Severity.Info, "Couldn't check the Wi-Fi around you",
+                    "The dongle didn't answer. You can still scan while you play.", Details: e.Message),
+            ];
         }
 
         Show(_survey);
@@ -96,11 +112,10 @@ public partial class WifiViewModel(IWifiSurveyor surveyor, Action<WifiSurvey?, F
     private Task SweepAgain() => RunAsync();
 
     [RelayCommand]
-    private void Continue() => finished(_survey, Finding!);
+    private void Continue() => finished(_survey, Findings);
 
     private void Show(WifiSurvey? survey)
     {
-        OnPropertyChanged(nameof(HasConflicts));
         if (survey?.Frame is not { } frame)
         {
             LinkSummary = "";

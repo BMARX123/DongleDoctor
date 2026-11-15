@@ -32,10 +32,7 @@
 
         <!-- Results -->
         <DockPanel IsVisible="{Binding IsResults}">
-            <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,12">
-                <TextBlock Classes="h" FontSize="20" Text="{Binding Finding.Title, FallbackValue=''}" />
-                <TextBlock Classes="sub" Text="{Binding Finding.Description, FallbackValue=''}" />
-            </StackPanel>
+            <TextBlock DockPanel.Dock="Top" Classes="h" FontSize="20" Margin="0,0,0,12" Text="{Binding Headline}" />
 
             <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
                 <Button Classes="ghost" Content="Check again" Command="{Binding SweepAgainCommand}" />
@@ -44,6 +41,27 @@
 
             <ScrollViewer>
                 <StackPanel Spacing="10">
+                    <ItemsControl ItemsSource="{Binding FindingRows}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:FindingRowViewModel">
+                                <Border Classes="finding">
+                                    <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
+                                        <Border Classes="stripe" Classes.crit="{Binding IsBlocker}" Classes.warn="{Binding IsWarning}" />
+                                        <StackPanel Grid.Column="1" Margin="0,8" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource DdInkBrush}" />
+                                            <TextBlock Text="{Binding Description}" FontSize="12" TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource DdInk2Brush}" />
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Classes="ghost compact" Margin="0,0,10,0" VerticalAlignment="Center"
+                                                Content="Show me how" IsVisible="{Binding HasGuide}" Command="{Binding OpenGuideCommand}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                     <StackPanel Spacing="4" IsVisible="{Binding Chart, Converter={x:Static ObjectConverters.IsNotNull}}">
                         <v:WifiChannelChart Height="110" Chart="{Binding Chart}"
                                             FrameBrush="{DynamicResource DdAccentBrush}" ConflictBrush="{DynamicResource DdWarnBrush}"

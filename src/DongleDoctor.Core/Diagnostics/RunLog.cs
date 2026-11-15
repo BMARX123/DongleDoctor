@@ -30,13 +30,18 @@ public sealed class RunLog(string directory, int keep = 20)
         Write(FormatScan(started, requested, stoppedEarly, report, chimePlayed), prune: false);
 
     /// <summary>Adds a Wi-Fi sweep to the current log file. Network names and addresses are left out.</summary>
-    public void Wifi(WifiSurvey? survey, Finding finding) => Write(FormatWifi(survey, finding), prune: false);
+    public void Wifi(WifiSurvey? survey, IReadOnlyList<Finding> findings) => Write(FormatWifi(survey, findings), prune: false);
 
-    internal static string FormatWifi(WifiSurvey? survey, Finding finding)
+    internal static string FormatWifi(WifiSurvey? survey, IReadOnlyList<Finding> findings)
     {
         var s = new StringBuilder();
         s.AppendLine();
-        s.AppendLine(Invariant($"Wi-Fi · {finding.Severity}: {finding.Title}"));
+        s.AppendLine("Wi-Fi");
+        foreach (var finding in findings)
+        {
+            s.AppendLine(Invariant($"  {finding.Severity,-8} {finding.CheckId}: {finding.Title}"));
+        }
+
         if (survey?.Frame is { } f)
         {
             s.AppendLine(Invariant($"  Frame:   {WifiAnalysis.BandName(f.Band)} ch {f.ChannelRange}, {f.WidthMhz} MHz, {f.Rssi} dBm"));
@@ -59,9 +64,12 @@ public sealed class RunLog(string directory, int keep = 20)
 
             s.AppendLine(Invariant($"  Weak overlaps: {survey.WeakOverlaps.Count}"));
         }
-        else if (finding.Details is not null)
+        else
         {
-            s.AppendLine(Invariant($"  {finding.Details}"));
+            foreach (var details in findings.Select(f => f.Details).OfType<string>())
+            {
+                s.AppendLine(Invariant($"  {details}"));
+            }
         }
 
         return s.ToString();
