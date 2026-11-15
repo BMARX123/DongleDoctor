@@ -9,7 +9,7 @@ public class ScoringTests
     private static readonly Finding Warning = new("c", Severity.Warning, "hub", "", FindingAction.Guide);
     private static readonly Finding Blocker = new("d", Severity.Blocker, "no dongle", "", FindingAction.Guide);
 
-    private static ScanSummary Scan(int hiccups, bool pcCause = false) => new(hiccups, TimeSpan.FromMinutes(5), pcCause);
+    private static ScanSummary Scan(int hiccups, bool? pcCause = false) => new(hiccups, TimeSpan.FromMinutes(5), pcCause);
 
     [Fact]
     public void AllPass_IsReady()
@@ -59,6 +59,18 @@ public class ScoringTests
     [Fact]
     public void HiccupsNotFromPc_KeepsWarningsAsImprovements() =>
         Assert.Equal([Warning], Scoring.Assess([Warning], Scan(6)).Improvements);
+
+    [Fact]
+    public void Hiccups_CauseUnknown_AllPassed_IsNotFromPc() =>
+        Assert.Equal(Verdict.HiccupsNotFromPc, Scoring.Assess([Pass, Info], Scan(6, pcCause: null)).Verdict);
+
+    [Fact]
+    public void Hiccups_CauseUnknown_WithWarning_IsNotReady()
+    {
+        var a = Scoring.Assess([Pass, Warning], Scan(6, pcCause: null));
+        Assert.Equal(Verdict.NotReady, a.Verdict);
+        Assert.Equal([Warning], a.ToFix);
+    }
 
     [Fact]
     public void RateScalesWithDuration()

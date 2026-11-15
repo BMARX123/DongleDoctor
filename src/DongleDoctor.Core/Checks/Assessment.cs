@@ -11,8 +11,12 @@ public enum Verdict
 }
 
 /// <summary>What a streaming scan measured.</summary>
-/// <param name="HasPcCause">At least one hiccup lined up with something on the PC (a driver delay, a Wi-Fi scan…).</param>
-public sealed record ScanSummary(int Hiccups, TimeSpan Duration, bool HasPcCause);
+/// <param name="Duration">Time spent streaming during the scan; the hiccup rate is per streaming minute.</param>
+/// <param name="HasPcCause">
+/// At least one hiccup lined up with something on the PC (a driver delay, a Wi-Fi scan…);
+/// null when the scan didn't look for PC-side causes.
+/// </param>
+public sealed record ScanSummary(int Hiccups, TimeSpan Duration, bool? HasPcCause);
 
 /// <param name="ToFix">Blockers then warnings, shown as a checklist when the verdict is Not ready.</param>
 /// <param name="Improvements">Warnings that don't stop a Ready verdict.</param>
@@ -47,7 +51,9 @@ public static class Scoring
         if (scan is not null && TooManyHiccups(scan))
         {
             // With a PC-side cause, the warnings are the checklist; without one, there's nothing on the PC to fix.
-            return scan.HasPcCause
+            // When nobody looked for a cause, only clear the PC if every check passed.
+            var blamePc = scan.HasPcCause ?? warnings.Count > 0;
+            return blamePc
                 ? Result(Verdict.NotReady, warnings, [])
                 : Result(Verdict.HiccupsNotFromPc, [], warnings);
         }

@@ -1,7 +1,5 @@
 using DongleDoctor.Core.Adapter;
-using DongleDoctor.Platform.Windows.Usb;
 using Microsoft.Win32;
-using Windows.Win32;
 
 namespace DongleDoctor.Platform.Windows.Adapter;
 
@@ -11,24 +9,13 @@ namespace DongleDoctor.Platform.Windows.Adapter;
 /// </summary>
 public sealed class WindowsDongleDriverSettings : IDongleDriverSettingsReader
 {
-    private const string ClassRoot = @"SYSTEM\CurrentControlSet\Control\Class\";
-
     // NDIS_DEVICE_DISABLE_PM: set when "Allow the computer to turn off this device" is unticked.
     private const int DisablePowerManagement = 0x8;
 
     public DongleDriverSettings? Read()
     {
-        if (WindowsUsbTopology.FindDongleInstanceId() is not { } id || ConfigManager.Locate(id) is not { } devInst)
-        {
-            return null;
-        }
-
-        // e.g. "{4d36e972-e325-11ce-bfc1-08002be10318}\0001"
-        var driverKey = ConfigManager.GetString(devInst, PInvoke.DEVPKEY_Device_Driver)
-            ?? throw new InvalidOperationException($"{id} has no driver key");
-        using var key = Registry.LocalMachine.OpenSubKey(ClassRoot + driverKey)
-            ?? throw new InvalidOperationException($"Driver key {driverKey} not found");
-        return Evaluate(key, driverKey);
+        using var key = DongleDriverKey.Open(out var driverKey);
+        return key is null ? null : Evaluate(key, driverKey);
     }
 
     private static DongleDriverSettings Evaluate(RegistryKey key, string driverKey)
