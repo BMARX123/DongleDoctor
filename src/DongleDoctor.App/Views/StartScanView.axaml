@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DongleDoctor.App.ViewModels"
+             x:Class="DongleDoctor.App.Views.StartScanView"
+             x:DataType="vm:StartScanViewModel">
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,18">
+            <TextBlock Classes="h" Text="Scan while you play" />
+            <TextBlock Classes="sub"
+                       Text="Start a game on your Frame first, then play normally. We'll count any hiccups while you play." />
+            <TextBlock Classes="small" TextWrapping="Wrap"
+                       Text="Your PC's sound plays in the headset, so you'll hear a chime when the scan is done." />
+        </StackPanel>
+
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto">
+            <Button Classes="ghost" Content="Back" Command="{Binding BackCommand}" />
+            <Button Grid.Column="2" Classes="primary" Content="Start scan" Command="{Binding StartCommand}" />
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding Options}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:ScanLengthOption">
+                    <RadioButton Classes="option" GroupName="ScanLength" IsChecked="{Binding IsSelected}"
+                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
+                                <TextBlock Text="{Binding Detail}" FontSize="12" Foreground="{DynamicResource DdInk2Brush}" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding Length}" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource DdInkBrush}" />
+                        </Grid>
+                    </RadioButton>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </DockPanel>
+
+</UserControl>

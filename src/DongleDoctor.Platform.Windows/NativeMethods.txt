@@ -27,3 +27,5 @@ LocalFree
 GetSystemPowerStatus
 DEVPKEY_Device_CompatibleIds
 DEVPKEY_Device_Driver
+PlaySound
+FlashWindowEx

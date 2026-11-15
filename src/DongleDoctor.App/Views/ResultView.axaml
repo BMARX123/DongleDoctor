@@ -1,10 +1,24 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:DongleDoctor.App.ViewModels"
+             xmlns:v="using:DongleDoctor.App.Views"
              x:Class="DongleDoctor.App.Views.ResultView"
              x:DataType="vm:ResultViewModel">
 
     <UserControl.Resources>
+        <!-- The finished scan: a full strip with a tick where each hiccup started. -->
+        <DataTemplate x:Key="ScanTimeline" DataType="vm:ResultViewModel">
+            <StackPanel Spacing="4" IsVisible="{Binding HasTimeline}">
+                <v:HiccupTimeline Height="18" Progress="1" Marks="{Binding HiccupMarks}"
+                                  Track="{DynamicResource DdNeutralSoftBrush}" Fill="{DynamicResource DdAccentSoftBrush}"
+                                  Mark="{DynamicResource DdWarnBrush}" />
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="small" Text="0:00" />
+                    <TextBlock Grid.Column="1" Classes="small" Text="{Binding TimelineLength}" />
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+
         <DataTemplate x:Key="FindingRow" DataType="vm:FindingRowViewModel">
             <Border Classes="finding">
                 <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
@@ -25,7 +39,11 @@
     <Panel>
         <!-- Ready -->
         <DockPanel IsVisible="{Binding IsReady}">
-            <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Center" Content="Done" Command="{Binding DoneCommand}" />
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                <Button Classes="ghost" Content="Done" Command="{Binding DoneCommand}" IsVisible="{Binding OfferScan}" />
+                <Button Classes="primary" Content="{Binding ScanButtonText}" Command="{Binding StartScanCommand}" IsVisible="{Binding OfferScan}" />
+                <Button Classes="primary" Content="Done" Command="{Binding DoneCommand}" IsVisible="{Binding ShowDoneOnly}" />
+            </StackPanel>
             <ScrollViewer>
                 <StackPanel Spacing="14">
                     <Border Width="96" Height="96" CornerRadius="48" HorizontalAlignment="Center" Margin="0,24,0,0"
@@ -35,9 +53,11 @@
                     </Border>
                     <TextBlock Classes="h" TextAlignment="Center" Text="{Binding Headline}" />
                     <TextBlock Classes="sub" TextAlignment="Center" Text="{Binding Summary}" />
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ScanTimeline}" />
                     <TextBlock Classes="small" HorizontalAlignment="Center">
                         <Run Text="Checks passed:" /> <Run Text="{Binding ChecksSummary}" FontWeight="Bold" />
                     </TextBlock>
+                    <TextBlock Classes="sub" TextAlignment="Center" Text="{Binding ScanNote}" IsVisible="{Binding HasScanNote}" />
                     <StackPanel Spacing="8" IsVisible="{Binding HasImprovements}" Margin="0,8,0,0">
                         <TextBlock Classes="small" Text="Optional improvements" FontWeight="Bold" />
                         <ItemsControl ItemsSource="{Binding Improvements}" ItemTemplate="{StaticResource FindingRow}">
@@ -59,8 +79,12 @@
                     </StackPanel>
                 </Grid>
             </Border>
+            <ContentControl DockPanel.Dock="Top" Margin="0,0,0,14" IsVisible="{Binding HasTimeline}"
+                            Content="{Binding}" ContentTemplate="{StaticResource ScanTimeline}" />
             <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Right" Margin="0,14,0,0"
                     Content="Check again" Command="{Binding CheckAgainCommand}" />
+            <TextBlock DockPanel.Dock="Bottom" Classes="small" TextWrapping="Wrap" Margin="0,10,0,0"
+                       Text="{Binding ScanNote}" IsVisible="{Binding HasScanNote}" />
             <ScrollViewer>
                 <ItemsControl ItemsSource="{Binding ToFix}" ItemTemplate="{StaticResource FindingRow}">
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
@@ -68,7 +92,7 @@
             </ScrollViewer>
         </DockPanel>
 
-        <!-- Hiccups, not from the PC. Reached only once a streaming scan exists. -->
+        <!-- Hiccups, not from the PC. Reached only after a scan. -->
         <DockPanel IsVisible="{Binding IsNotFromPc}">
             <Border DockPanel.Dock="Top" Classes="verdict away" Margin="0,0,0,14">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
@@ -79,11 +103,15 @@
                     </StackPanel>
                 </Grid>
             </Border>
+            <ContentControl DockPanel.Dock="Top" Margin="0,0,0,14" IsVisible="{Binding HasTimeline}"
+                            Content="{Binding}" ContentTemplate="{StaticResource ScanTimeline}" />
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,14,0,0">
                 <Button Classes="ghost" Content="Check again" Command="{Binding CheckAgainCommand}" />
                 <!-- Reports aren't built yet. -->
                 <Button Classes="primary" Content="Save report" IsEnabled="False" ToolTip.Tip="Reports are coming soon" />
             </StackPanel>
+            <TextBlock DockPanel.Dock="Bottom" Classes="small" TextWrapping="Wrap" Margin="0,10,0,0"
+                       Text="{Binding ScanNote}" IsVisible="{Binding HasScanNote}" />
             <ScrollViewer>
                 <StackPanel Spacing="8">
                     <TextBlock Classes="small" TextWrapping="Wrap"

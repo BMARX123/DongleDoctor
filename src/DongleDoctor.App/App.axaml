@@ -9,6 +9,8 @@
         <DataTemplate DataType="vm:WelcomeViewModel"><v:WelcomeView /></DataTemplate>
         <DataTemplate DataType="vm:QuickChecksViewModel"><v:QuickChecksView /></DataTemplate>
         <DataTemplate DataType="vm:ResultViewModel"><v:ResultView /></DataTemplate>
+        <DataTemplate DataType="vm:StartScanViewModel"><v:StartScanView /></DataTemplate>
+        <DataTemplate DataType="vm:ScanningViewModel"><v:ScanningView /></DataTemplate>
     </Application.DataTemplates>
 
     <!-- Brand colours, light and dark. Accent #1A9FFF takes dark text: white on it is only 2.9:1 contrast. -->
@@ -160,6 +162,45 @@
         <Style Selector="Border.stripe"><Setter Property="Background" Value="{DynamicResource DdAccentTextBrush}" /></Style>
         <Style Selector="Border.stripe.crit"><Setter Property="Background" Value="{DynamicResource DdCritBrush}" /></Style>
         <Style Selector="Border.stripe.warn"><Setter Property="Background" Value="{DynamicResource DdWarnBrush}" /></Style>
+        <!-- Start scan: each scan length is a card; the chosen one takes the accent. -->
+        <Style Selector="RadioButton.option">
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DdLineBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                            <Panel VerticalAlignment="Center">
+                                <Ellipse Name="Ring" Width="18" Height="18" StrokeThickness="1.5" Stroke="{DynamicResource DdInk2Brush}" />
+                                <Ellipse Name="Dot" Width="8" Height="8" IsVisible="False" Fill="{DynamicResource DdAccentBrush}" />
+                            </Panel>
+                            <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="RadioButton.option:pointerover">
+            <Setter Property="BorderBrush" Value="{DynamicResource DdAccentHoverBrush}" />
+        </Style>
+        <Style Selector="RadioButton.option:checked">
+            <Setter Property="BorderBrush" Value="{DynamicResource DdAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource DdAccentSoftBrush}" />
+        </Style>
+        <Style Selector="RadioButton.option:checked /template/ Ellipse#Ring">
+            <Setter Property="Stroke" Value="{DynamicResource DdAccentBrush}" />
+        </Style>
+        <Style Selector="RadioButton.option:checked /template/ Ellipse#Dot">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
         <Style Selector="Button.ghost.compact">
             <Setter Property="Padding" Value="12,6" />
             <Setter Property="FontSize" Value="13" />

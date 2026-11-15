@@ -27,7 +27,11 @@ public sealed record ScanReport(
     IReadOnlyList<HiccupEpisode> PingOnlySpikes,
     bool UsedSteamLog,
     TimeSpan Elapsed,
-    IReadOnlyList<string> ProbeErrors);
+    IReadOnlyList<string> ProbeErrors)
+{
+    /// <summary>False when the Frame never streamed during the scan, so there's nothing to judge.</summary>
+    public bool StreamDetected => Summary.Duration > TimeSpan.Zero;
+}
 
 /// <summary>Turns a scan's events into hiccups and a summary for scoring.</summary>
 public static class ScanAnalysis
@@ -41,12 +45,15 @@ public static class ScanAnalysis
     /// <summary>Steam writes its bitrate histogram every 30 s while streaming.</summary>
     public static readonly TimeSpan StreamingMarkInterval = TimeSpan.FromSeconds(30);
 
+    /// <summary>How long a ping waits for a reply. A ping that took this long was lost.</summary>
+    public static readonly TimeSpan PingTimeout = TimeSpan.FromMilliseconds(500);
+
     public static ScanReport Analyze(IReadOnlyList<ScanEvent> events, TimeSpan elapsed, IReadOnlyList<string>? probeErrors = null)
     {
         var sorted = events.OrderBy(e => e.At).ToList();
         var throttles = sorted.Where(e => e.Kind == ScanEventKind.Throttle).ToList();
         var marks = sorted.Where(e => e.Kind == ScanEventKind.Streaming).Select(e => e.At).ToList();
-        var usedSteamLog = throttles.Count > 0 || marks.Count > 0;
+        var usedSteamLog = throttles.Count > 0 || marks.Count > 0 || sorted.Any(e => e.Kind == ScanEventKind.LogOpened);
 
         // A throttle is logged when the encoder has already been stopped that long, so the stall began earlier.
         var steamEpisodes = Merge(throttles, HiccupSource.SteamThrottle, e => e.At - TimeSpan.FromMilliseconds(e.Ms))
@@ -57,7 +64,19 @@ public static class ScanAnalysis
 
         var hiccups = usedSteamLog ? steamEpisodes : pingEpisodes;
         var pingOnly = usedSteamLog ? pingEpisodes.Where(p => !steamEpisodes.Any(s => Near(p, s))).ToList() : [];
-        var streaming = usedSteamLog && marks.Count > 0 ? StreamingTime(marks, elapsed) : elapsed;
+        var streaming = (usedSteamLog, marks.Count > 0, throttles.Count > 0) switch
+        {
+            (true, true, _) => StreamingTime(marks, elapsed),
+
+            // Throttles only happen while streaming, even if the scan was too short for a mark.
+            (true, false, true) => elapsed,
+
+            // A readable log with nothing in it: the Frame wasn't streaming.
+            (true, false, false) => TimeSpan.Zero,
+
+            // No Steam log: the best sign of a stream is the Frame answering pings.
+            _ => sorted.Any(e => e.Kind == ScanEventKind.Ping && e.Ms < PingTimeout.TotalMilliseconds) ? elapsed : TimeSpan.Zero,
+        };
         return new ScanReport(
             new ScanSummary(hiccups.Count, streaming, HasPcCause: null),
             hiccups, pingOnly, usedSteamLog, elapsed, probeErrors ?? []);

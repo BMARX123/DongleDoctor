@@ -26,8 +26,8 @@ public sealed class ScanProbeTests(ITestOutputHelper output) : IDisposable
             await Task.Delay(600);
         });
 
-        Assert.Equal([ScanEventKind.Throttle, ScanEventKind.Streaming], events.Select(e => e.Kind));
-        Assert.Equal(300.613, events[0].Ms, 3);
+        Assert.Equal([ScanEventKind.LogOpened, ScanEventKind.Throttle, ScanEventKind.Streaming], events.Select(e => e.Kind));
+        Assert.Equal(300.613, events[1].Ms, 3);
     }
 
     [Fact]
@@ -41,7 +41,8 @@ public sealed class ScanProbeTests(ITestOutputHelper output) : IDisposable
             await Task.Delay(600);
         });
 
-        Assert.Equal(250, Assert.Single(events).Ms);
+        Assert.Single(events, e => e.Kind == ScanEventKind.LogOpened);
+        Assert.Equal(250, Assert.Single(events, e => e.Kind == ScanEventKind.Throttle).Ms);
     }
 
     [Fact]
@@ -54,7 +55,7 @@ public sealed class ScanProbeTests(ITestOutputHelper output) : IDisposable
             await Task.Delay(600);
         });
 
-        Assert.Single(events);
+        Assert.Equal([ScanEventKind.LogOpened, ScanEventKind.Throttle], events.Select(e => e.Kind));
     }
 
     [Fact]

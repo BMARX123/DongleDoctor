@@ -9,7 +9,7 @@
 
         <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto">
             <TextBlock Classes="small" VerticalAlignment="Center" Text="{Binding Progress}" />
-            <Button Grid.Column="1" Classes="primary" Content="See results" Command="{Binding SeeResultsCommand}" />
+            <Button Grid.Column="1" Classes="primary" Content="{Binding ContinueText}" Command="{Binding SeeResultsCommand}" />
         </Grid>
 
         <ScrollViewer>

@@ -1,0 +1,59 @@
+using DongleDoctor.Core.Checks;
+using DongleDoctor.Core.Diagnostics;
+using DongleDoctor.Core.Scan;
+
+namespace DongleDoctor.Core.Tests;
+
+public sealed class RunLogTests : IDisposable
+{
+    private static readonly DateTime Start = new(2026, 11, 15, 13, 40, 0);
+
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), $"dd-logs-{Guid.NewGuid():N}");
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_dir))
+        {
+            Directory.Delete(_dir, recursive: true);
+        }
+    }
+
+    private static ScanReport Report() => ScanAnalysis.Analyze(
+        [
+            new(TimeSpan.Zero, ScanEventKind.LogOpened),
+            new(TimeSpan.FromSeconds(30), ScanEventKind.Streaming),
+            new(TimeSpan.FromSeconds(20), ScanEventKind.Throttle, 300),
+        ],
+        TimeSpan.FromSeconds(45));
+
+    [Fact]
+    public void Scan_ListsHiccupsAtClockTime_AndTheChime()
+    {
+        var text = RunLog.FormatScan(Start, TimeSpan.FromMinutes(5), stoppedEarly: true, Report(), chimePlayed: null);
+
+        Assert.Contains("ended 13:40:45", text);
+        Assert.Contains("0:45 of 5:00, stopped early", text);
+        Assert.Contains("13:40:19.700  peak 300 ms", text);
+        Assert.Contains("Chime:       not due", text);
+    }
+
+    [Fact]
+    public void ChecksStartAFile_ScansAppendToIt_AndOldFilesArePruned()
+    {
+        var log = new RunLog(_dir, keep: 2);
+        log.Checks([new Finding("usb.speed", Severity.Pass, "USB 3", "")], Start);
+        log.Scan(Start, TimeSpan.FromMinutes(5), false, Report(), chimePlayed: true);
+        log.Checks([], Start.AddMinutes(1));
+        log.Checks([], Start.AddMinutes(2));
+
+        var files = Directory.GetFiles(_dir).Select(Path.GetFileName).Order().ToList();
+        Assert.Equal(["run-20261115-134100.txt", "run-20261115-134200.txt"], files);
+    }
+
+    [Fact]
+    public void Scan_BeforeAnyChecks_IsIgnored()
+    {
+        new RunLog(_dir).Scan(Start, TimeSpan.FromMinutes(5), false, Report(), true);
+        Assert.False(Directory.Exists(_dir));
+    }
+}

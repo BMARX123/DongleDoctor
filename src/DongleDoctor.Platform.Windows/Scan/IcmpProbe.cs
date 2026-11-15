@@ -14,7 +14,7 @@ public sealed class IcmpProbe(Func<IPAddress?>? findTarget = null) : IProbe
 {
     // Aim for 50 Hz. Windows timers round this up, so the real rate is lower; one stalled ping is enough to see a pause.
     private static readonly TimeSpan Interval = TimeSpan.FromMilliseconds(20);
-    private static readonly TimeSpan Timeout = TimeSpan.FromMilliseconds(500);
+    private static readonly TimeSpan Timeout = ScanAnalysis.PingTimeout;
     private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(1);
 
     public string Name => "Ping to the Frame";
