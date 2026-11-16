@@ -20,14 +20,26 @@ public partial class ScanningViewModel(ScanSession session, TimeSpan duration, A
     [ObservableProperty]
     public partial double Progress { get; set; }
 
+    /// <summary>The big countdown, e.g. "6:48".</summary>
     [ObservableProperty]
-    public partial string TimeLeft { get; set; } = Format(duration);
+    public partial string Countdown { get; set; } = Clock(duration);
+
+    /// <summary>The words beside the countdown, e.g. "left of 10:00".</summary>
+    [ObservableProperty]
+    public partial string CountdownLabel { get; set; } = $"left of {Clock(duration)}";
+
+    /// <summary>The scan's full length, at the right end of the timeline.</summary>
+    public string Total { get; } = Clock(duration);
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HiccupsLabel))]
+    [NotifyPropertyChangedFor(nameof(StreamState))]
+    public partial bool StreamDetected { get; set; }
+
+    public string StreamState => StreamDetected ? "Detected" : "Not yet";
+
+    [ObservableProperty]
     public partial int Hiccups { get; set; }
 
-    public string HiccupsLabel => Hiccups == 1 ? "hiccup so far" : "hiccups so far";
 
     /// <summary>Where each hiccup falls on the timeline, from 0 (the start) to 1 (the end).</summary>
     [ObservableProperty]
@@ -50,7 +62,10 @@ public partial class ScanningViewModel(ScanSession session, TimeSpan duration, A
     internal void Update(ScanProgress p)
     {
         Progress = Math.Clamp(p.Elapsed / p.Duration, 0, 1);
-        TimeLeft = Format(p.Duration - p.Elapsed);
+        var left = p.Duration - p.Elapsed;
+        Countdown = Clock(left);
+        CountdownLabel = left <= TimeSpan.Zero ? "finishing…" : $"left of {Clock(p.Duration)}";
+        StreamDetected = p.StreamDetected;
         Hiccups = p.HiccupsSoFar;
         HiccupMarks = [.. p.HiccupTimes.Select(t => Math.Clamp(t / p.Duration, 0, 1))];
         ShowNoStreamWarning = !p.StreamDetected && p.Elapsed >= NoStreamWarningAfter;
@@ -65,6 +80,6 @@ public partial class ScanningViewModel(ScanSession session, TimeSpan duration, A
         _stop.Cancel();
     }
 
-    private static string Format(TimeSpan left) =>
-        left <= TimeSpan.Zero ? "Finishing…" : $"{(int)left.TotalMinutes}:{left.Seconds:00} left";
+    private static string Clock(TimeSpan t) =>
+        t <= TimeSpan.Zero ? "0:00" : $"{(int)t.TotalMinutes}:{t.Seconds:00}";
 }

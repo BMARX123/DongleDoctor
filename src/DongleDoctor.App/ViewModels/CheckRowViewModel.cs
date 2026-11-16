@@ -13,10 +13,16 @@ public partial class CheckRowViewModel(string runningTitle) : ViewModelBase
     public partial string Description { get; set; } = "Checking…";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsRunning), nameof(IsGood), nameof(IsWarning), nameof(IsBlocker), nameof(Icon))]
+    [NotifyPropertyChangedFor(nameof(IsRunning), nameof(IsGood), nameof(IsWarning), nameof(IsBlocker), nameof(Icon), nameof(ShowDescription))]
     public partial Severity? Severity { get; set; }
 
     public bool IsRunning => Severity is null;
+
+    /// <summary>
+    /// Running and passing rows are one line (the title says it all), so a row keeps its height when its check
+    /// passes. Only a warning or blocker adds a second line with the reason.
+    /// </summary>
+    public bool ShowDescription => !IsRunning && !IsGood;
 
     // Info (e.g. "Skipped") reads as neutral rather than green.
     public bool IsGood => Severity is Core.Checks.Severity.Pass;

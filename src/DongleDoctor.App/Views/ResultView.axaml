@@ -9,7 +9,7 @@
         <!-- The finished scan: a full strip with a tick where each hiccup started. -->
         <DataTemplate x:Key="ScanTimeline" DataType="vm:ResultViewModel">
             <StackPanel Spacing="4" IsVisible="{Binding HasTimeline}">
-                <v:HiccupTimeline Height="18" Progress="1" Marks="{Binding HiccupMarks}"
+                <v:HiccupTimeline Height="14" Progress="1" Marks="{Binding HiccupMarks}"
                                   Track="{DynamicResource DdNeutralSoftBrush}" Fill="{DynamicResource DdAccentSoftBrush}"
                                   Mark="{DynamicResource DdWarnBrush}" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -22,12 +22,14 @@
         <DataTemplate x:Key="FindingRow" DataType="vm:FindingRowViewModel">
             <Border Classes="finding">
                 <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
-                    <Border Classes="stripe" Classes.crit="{Binding IsBlocker}" Classes.warn="{Binding IsWarning}" />
-                    <StackPanel Grid.Column="1" Margin="0,8" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource DdInkBrush}" />
-                        <TextBlock Text="{Binding Description}" FontSize="12" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource DdInk2Brush}" />
+                    <Border Classes="stripe" Classes.crit="{Binding IsBlocker}" Classes.warn="{Binding IsWarning}" Classes.good="{Binding IsPass}" />
+                    <StackPanel Grid.Column="1" Margin="0,8" VerticalAlignment="Center" Spacing="1">
+                        <TextBlock Classes="t" Text="{Binding Title}" />
+                        <Border Classes="tag" Classes.crit="{Binding IsBlocker}" Classes.warn="{Binding IsWarning}"
+                                IsVisible="{Binding HasTag}" Margin="0,2,0,2">
+                            <TextBlock Text="{Binding Tag}" />
+                        </Border>
+                        <TextBlock Classes="d" Text="{Binding Description}" />
                     </StackPanel>
                     <Button Grid.Column="2" Classes="ghost compact" Margin="0,0,10,0" VerticalAlignment="Center"
                             Content="Show me how" IsVisible="{Binding HasGuide}" Command="{Binding OpenGuideCommand}" />
@@ -39,26 +41,36 @@
     <Panel>
         <!-- Ready -->
         <DockPanel IsVisible="{Binding IsReady}">
-            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,12,0,0">
                 <Button Classes="ghost" Content="Done" Command="{Binding DoneCommand}" IsVisible="{Binding OfferScan}" />
                 <Button Classes="primary" Content="{Binding ScanButtonText}" Command="{Binding StartScanCommand}" IsVisible="{Binding OfferScan}" />
                 <Button Classes="primary" Content="Done" Command="{Binding DoneCommand}" IsVisible="{Binding ShowDoneOnly}" />
             </StackPanel>
             <ScrollViewer>
                 <StackPanel Spacing="14">
-                    <Border Width="96" Height="96" CornerRadius="48" HorizontalAlignment="Center" Margin="0,24,0,0"
-                            Background="{DynamicResource DdGoodSoftBrush}">
-                        <TextBlock Text="✓" FontSize="46" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource DdGoodBrush}" />
-                    </Border>
+                    <Border Classes="hero good" Classes.sm="{Binding HasImprovements}" Margin="0,8,0,0"><TextBlock Text="✓" /></Border>
                     <TextBlock Classes="h" TextAlignment="Center" Text="{Binding Headline}" />
                     <TextBlock Classes="sub" TextAlignment="Center" Text="{Binding Summary}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding HasScanTiles}">
+                        <Border Classes="stat">
+                            <StackPanel>
+                                <TextBlock Classes="k" Text="Hiccups" />
+                                <TextBlock Classes="v" Text="{Binding HiccupCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Classes="stat">
+                            <StackPanel>
+                                <TextBlock Classes="k" Text="{Binding ChecksTileLabel}" />
+                                <TextBlock Classes="v" Text="{Binding ChecksTileValue}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                     <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ScanTimeline}" />
-                    <TextBlock Classes="small" HorizontalAlignment="Center">
+                    <TextBlock Classes="small" HorizontalAlignment="Center" IsVisible="{Binding ShowChecksLine}">
                         <Run Text="Checks passed:" /> <Run Text="{Binding ChecksSummary}" FontWeight="Bold" />
                     </TextBlock>
                     <TextBlock Classes="sub" TextAlignment="Center" Text="{Binding ScanNote}" IsVisible="{Binding HasScanNote}" />
-                    <StackPanel Spacing="8" IsVisible="{Binding HasImprovements}" Margin="0,8,0,0">
+                    <StackPanel Spacing="8" IsVisible="{Binding HasImprovements}">
                         <TextBlock Classes="small" Text="Optional improvements" FontWeight="Bold" />
                         <ItemsControl ItemsSource="{Binding Improvements}" ItemTemplate="{StaticResource FindingRow}">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
@@ -74,14 +86,14 @@
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
                     <Border Classes="badge"><TextBlock Text="!" /></Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Classes="h" FontSize="20" Text="{Binding Headline}" />
+                        <TextBlock Classes="h h2" Text="{Binding Headline}" />
                         <TextBlock Classes="sub" Text="{Binding Summary}" />
                     </StackPanel>
                 </Grid>
             </Border>
             <ContentControl DockPanel.Dock="Top" Margin="0,0,0,14" IsVisible="{Binding HasTimeline}"
                             Content="{Binding}" ContentTemplate="{StaticResource ScanTimeline}" />
-            <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Right" Margin="0,14,0,0"
+            <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Right" Margin="0,12,0,0"
                     Content="Check again" Command="{Binding CheckAgainCommand}" />
             <TextBlock DockPanel.Dock="Bottom" Classes="small" TextWrapping="Wrap" Margin="0,10,0,0"
                        Text="{Binding ScanNote}" IsVisible="{Binding HasScanNote}" />
@@ -98,14 +110,14 @@
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
                     <Border Classes="badge"><TextBlock Text="~" /></Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Classes="h" FontSize="20" Text="{Binding Headline}" />
+                        <TextBlock Classes="h h2" Text="{Binding Headline}" />
                         <TextBlock Classes="sub" Text="{Binding Summary}" />
                     </StackPanel>
                 </Grid>
             </Border>
             <ContentControl DockPanel.Dock="Top" Margin="0,0,0,14" IsVisible="{Binding HasTimeline}"
                             Content="{Binding}" ContentTemplate="{StaticResource ScanTimeline}" />
-            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,14,0,0">
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,12,0,0">
                 <Button Classes="ghost" Content="Check again" Command="{Binding CheckAgainCommand}" />
                 <!-- Reports aren't built yet. -->
                 <Button Classes="primary" Content="Save report" IsEnabled="False" ToolTip.Tip="Reports are coming soon" />
@@ -114,14 +126,13 @@
                        Text="{Binding ScanNote}" IsVisible="{Binding HasScanNote}" />
             <ScrollViewer>
                 <StackPanel Spacing="8">
-                    <TextBlock Classes="small" TextWrapping="Wrap"
-                               Text="The hiccups happened between the dongle and your Frame. These sometimes help:" />
+                    <TextBlock Classes="small" TextWrapping="Wrap" Text="These sometimes help:" />
                     <Border Classes="finding">
                         <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
                             <Border Classes="stripe" />
                             <StackPanel Grid.Column="1" Margin="0,8">
-                                <TextBlock Text="Give the dongle a clear view" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
-                                <TextBlock Text="Walls, desks and furniture between it and you weaken the signal" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource DdInk2Brush}" />
+                                <TextBlock Classes="t" Text="Give the dongle a clear view" />
+                                <TextBlock Classes="d" Text="Walls, desks and furniture between it and you weaken the signal" />
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -129,8 +140,8 @@
                         <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
                             <Border Classes="stripe" />
                             <StackPanel Grid.Column="1" Margin="0,8">
-                                <TextBlock Text="Check for busy Wi-Fi nearby" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
-                                <TextBlock Text="Other networks on the same channel can interrupt the stream" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource DdInk2Brush}" />
+                                <TextBlock Classes="t" Text="Check for busy Wi-Fi nearby" />
+                                <TextBlock Classes="d" Text="Other networks on the same channel can interrupt the stream" />
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -138,8 +149,8 @@
                         <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
                             <Border Classes="stripe" />
                             <StackPanel Grid.Column="1" Margin="0,8">
-                                <TextBlock Text="Check your Frame's settings" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
-                                <TextBlock Text="Headset updates and Wi-Fi settings can affect the link" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource DdInk2Brush}" />
+                                <TextBlock Classes="t" Text="Check your Frame's settings" />
+                                <TextBlock Classes="d" Text="Headset updates and Wi-Fi settings can affect the link" />
                             </StackPanel>
                         </Grid>
                     </Border>

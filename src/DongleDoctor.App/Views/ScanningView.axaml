@@ -6,29 +6,52 @@
              x:DataType="vm:ScanningViewModel">
 
     <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Spacing="8">
-            <TextBlock Classes="h" Text="Scanning" />
-            <TextBlock Classes="sub" Text="Keep playing normally. You can take the headset off when you hear the chime." />
-        </StackPanel>
-
-        <Button DockPanel.Dock="Bottom" Classes="ghost" HorizontalAlignment="Center" Content="Stop early"
+        <Button DockPanel.Dock="Bottom" Classes="ghost" HorizontalAlignment="Right" Content="Stop early"
                 Command="{Binding StopEarlyCommand}" />
 
-        <StackPanel VerticalAlignment="Center" Spacing="14">
-            <TextBlock Text="{Binding Hiccups}" FontSize="56" FontWeight="ExtraBold" HorizontalAlignment="Center"
-                       Foreground="{DynamicResource DdInkBrush}" />
-            <TextBlock Classes="sub" Text="{Binding HiccupsLabel}" HorizontalAlignment="Center" Margin="0,-14,0,0" />
+        <StackPanel Spacing="14">
+            <TextBlock Classes="sub" Text="Keep playing normally. You can take the headset off when you hear the chime." />
 
-            <v:HiccupTimeline Height="22" Margin="0,10,0,0" Progress="{Binding Progress}" Marks="{Binding HiccupMarks}"
-                              Track="{DynamicResource DdNeutralSoftBrush}" Fill="{DynamicResource DdAccentSoftBrush}"
-                              Mark="{DynamicResource DdWarnBrush}" />
-            <TextBlock Classes="small" HorizontalAlignment="Right" Text="{Binding TimeLeft}" Margin="0,-8,0,0" />
+            <!-- The big countdown. -->
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Classes="timer" Text="{Binding Countdown}" />
+                <TextBlock Classes="small" VerticalAlignment="Bottom" Margin="0,0,0,8" Text="{Binding CountdownLabel}" />
+            </StackPanel>
 
-            <Border Classes="verdict away" IsVisible="{Binding ShowNoStreamWarning}">
+            <!-- The hiccup timeline is the progress meter: it fills as time passes, and each hiccup is an amber tick. -->
+            <StackPanel Spacing="4">
+                <v:HiccupTimeline Height="24" Progress="{Binding Progress}" Marks="{Binding HiccupMarks}"
+                                  Track="{DynamicResource DdNeutralSoftBrush}" Fill="{DynamicResource DdAccentSoftBrush}"
+                                  Mark="{DynamicResource DdWarnBrush}" />
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="small" Text="0:00" />
+                    <TextBlock Grid.Column="1" Classes="small" Text="{Binding Total}" />
+                </Grid>
+            </StackPanel>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Border Classes="stat">
+                    <StackPanel>
+                        <TextBlock Classes="k" Text="Hiccups so far" />
+                        <TextBlock Classes="v" Text="{Binding Hiccups}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Classes="stat">
+                    <StackPanel>
+                        <TextBlock Classes="k" Text="Game stream" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Classes="dot" Classes.good="{Binding StreamDetected}"
+                                     Classes.warn="{Binding !StreamDetected}" />
+                            <TextBlock Classes="v word" Text="{Binding StreamState}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Classes="verdict away slim" IsVisible="{Binding ShowNoStreamWarning}">
                 <StackPanel Spacing="2">
-                    <TextBlock Text="No game stream detected" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
-                    <TextBlock Text="Start a game on your Frame. Only the time you're streaming counts." FontSize="12"
-                               TextWrapping="Wrap" Foreground="{DynamicResource DdInk2Brush}" />
+                    <TextBlock Classes="t" Text="No game stream detected" />
+                    <TextBlock Classes="d" Text="Start a game on your Frame. Only the time you're streaming counts." />
                 </StackPanel>
             </Border>
         </StackPanel>

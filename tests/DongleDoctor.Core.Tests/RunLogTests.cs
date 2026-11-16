@@ -65,7 +65,7 @@ public sealed class RunLogTests : IDisposable
 
         var text = RunLog.FormatWifi(survey, WifiAnalysis.ToFindings(survey));
 
-        Assert.Contains("Warning  wifi.band: Your Frame isn't using 6 GHz", text);
+        Assert.Contains("Warning  wifi.band: Your game stream is on 5 GHz, not 6 GHz", text);
 
         Assert.Contains("Frame:   5 GHz ch 36–48, 80 MHz, -46 dBm", text);
         Assert.Contains("Overlap: ch 44/80 MHz, -55 dBm", text);
