@@ -39,6 +39,12 @@ public partial class ResultViewModel : ViewModelBase
 
         Verdict = assessment.Verdict;
         ChecksSummary = $"{assessment.ChecksPassed} of {assessment.ChecksRun}";
+        HasScanTiles = assessment.Scan is not null;
+        HiccupCount = assessment.Scan?.Hiccups ?? 0;
+        // The second tile counts optional improvements; "9 of 11" would read as a failure on a Ready screen.
+        (ChecksTileLabel, ChecksTileValue) = assessment.Improvements.Count > 0
+            ? ("Optional improvements", $"{assessment.Improvements.Count}")
+            : ("Checks", $"All {assessment.ChecksRun} passed");
         ToFix = [.. assessment.ToFix.Select(f => new FindingRowViewModel(f, openGuide))];
         Improvements = [.. assessment.Improvements.Select(f => new FindingRowViewModel(f, openGuide))];
 
@@ -47,7 +53,7 @@ public partial class ResultViewModel : ViewModelBase
         (Headline, Summary) = Verdict switch
         {
             Verdict.NotReady => ("Not ready yet", $"{hiccups} {Count(ToFix.Count, "thing")} to fix.".TrimStart()),
-            Verdict.HiccupsNotFromPc => ("Your PC looks fine, but you had hiccups", $"{hiccups} Nothing on your PC lined up with them."),
+            Verdict.HiccupsNotFromPc => ("Your PC checks all passed, but you had hiccups", $"{hiccups} They most likely come from the wireless link."),
             _ => scan is null
                 ? ("Your setup looks good", "Your dongle is connected the way it should be.")
                 : ("You're ready", $"{hiccups} Your connection stayed steady."),
@@ -67,6 +73,18 @@ public partial class ResultViewModel : ViewModelBase
     public string Summary { get; }
 
     public string ChecksSummary { get; }
+
+    /// <summary>Ready after a scan shows two tiles: hiccups, and optional improvements (or "all passed").</summary>
+    public bool HasScanTiles { get; }
+
+    /// <summary>Ready before a scan shows a line of text instead of the tiles.</summary>
+    public bool ShowChecksLine => !HasScanTiles;
+
+    public int HiccupCount { get; }
+
+    public string ChecksTileLabel { get; }
+
+    public string ChecksTileValue { get; }
 
     public IReadOnlyList<FindingRowViewModel> ToFix { get; }
 
@@ -111,13 +129,25 @@ public partial class ResultViewModel : ViewModelBase
 /// <summary>One finding in a results list, with its severity stripe and guide button.</summary>
 public partial class FindingRowViewModel(Finding finding, Action<string> openGuide) : ViewModelBase
 {
-    public string Title => finding.Title;
+    public string Title => UiText.KeepUnits(finding.Title);
 
-    public string Description => finding.Description;
+    public string Description => UiText.KeepUnits(finding.Description);
 
     public bool IsBlocker => finding.Severity == Severity.Blocker;
 
     public bool IsWarning => finding.Severity == Severity.Warning;
+
+    public bool IsPass => finding.Severity == Severity.Pass;
+
+    /// <summary>A text tag beside the title, so colour isn't the only signal.</summary>
+    public string? Tag => finding.Severity switch
+    {
+        Severity.Blocker => "MUST FIX",
+        Severity.Warning => "COULD HELP",
+        _ => null,
+    };
+
+    public bool HasTag => Tag is not null;
 
     public bool HasGuide => finding.Action == FindingAction.Guide;
 

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Media;
 using System;
 
 namespace DongleDoctor.App;
@@ -19,6 +20,12 @@ sealed class Program
 #if DEBUG
             .WithDeveloperTools()
 #endif
-            .WithInterFont()
+            .With(new FontManagerOptions { DefaultFamilyName = Fonts.Body })
             .LogToTrace();
+}
+
+/// <summary>The bundled fonts: Atkinson Hyperlegible for text, Bricolage Grotesque for headings.</summary>
+static class Fonts
+{
+    public const string Body = "avares://DongleDoctor/Assets/Fonts#Atkinson Hyperlegible";
 }

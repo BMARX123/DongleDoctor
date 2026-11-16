@@ -7,7 +7,7 @@
     <DockPanel>
         <TextBlock DockPanel.Dock="Top" Classes="h" Text="Checking your setup" Margin="0,0,0,14" />
 
-        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto">
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto" Margin="0,12,0,0">
             <TextBlock Classes="small" VerticalAlignment="Center" Text="{Binding Progress}" />
             <Button Grid.Column="1" Classes="primary" Content="{Binding ContinueText}" Command="{Binding SeeResultsCommand}" />
         </Grid>
@@ -16,21 +16,24 @@
             <ItemsControl ItemsSource="{Binding Rows}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="vm:CheckRowViewModel">
-                        <Border BorderBrush="{DynamicResource DdLineBrush}" BorderThickness="0,0,0,1" Padding="2,9">
+                        <!-- Passing rows are one line, so all nine fit without scrolling. -->
+                        <Border BorderBrush="{DynamicResource DdLineBrush}" BorderThickness="0,0,0,1" Padding="2,5">
                             <Grid ColumnDefinitions="22,*" ColumnSpacing="10">
-                                <Border Classes="ic" VerticalAlignment="Top" Margin="0,1,0,0"
+                                <Border Classes="ic" VerticalAlignment="Center" Classes.running="{Binding IsRunning}"
                                         Classes.good="{Binding IsGood}" Classes.warn="{Binding IsWarning}" Classes.crit="{Binding IsBlocker}">
                                     <Panel>
                                         <TextBlock Text="{Binding Icon}" />
-                                        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsRunning}" MinWidth="0" Width="16" Height="3"
-                                                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <!-- Pending: a grey ring with a spinning accent arc. -->
+                                        <Panel IsVisible="{Binding IsRunning}">
+                                            <Ellipse Stroke="{DynamicResource DdLineBrush}" StrokeThickness="2" />
+                                            <Arc Classes="spin" Stroke="{DynamicResource DdAccentTextBrush}" StrokeThickness="2"
+                                                 StartAngle="-90" SweepAngle="90" />
+                                        </Panel>
                                     </Panel>
                                 </Border>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
-                                               Foreground="{DynamicResource DdInkBrush}" />
-                                    <TextBlock Text="{Binding Description}" FontSize="13" TextWrapping="Wrap"
-                                               Foreground="{DynamicResource DdInk2Brush}" />
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" MinHeight="22">
+                                    <TextBlock Classes="t" Text="{Binding Title}" FontSize="13.5" />
+                                    <TextBlock Classes="d" Text="{Binding Description}" IsVisible="{Binding ShowDescription}" />
                                 </StackPanel>
                             </Grid>
                         </Border>

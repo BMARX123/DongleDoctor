@@ -4,7 +4,7 @@ Your Frame and its wireless adapter talk over one Wi-Fi channel. Other Wi-Fi net
 
 ## What to do
 
-1. **Check whether your Frame can use 6 GHz.** If DongleDoctor also says "Your Frame isn't using 6 GHz", fix that first ([see how](wifi-band.md)). 6 GHz is usually far quieter, and this warning often goes away on its own.
+1. **Check whether your Frame can use 6 GHz.** If DongleDoctor also says "Your game stream is on 5 GHz, not 6 GHz", fix that first ([see how](wifi-band.md)). 6 GHz is usually far quieter, and this warning often goes away on its own.
 2. **If one of the networks listed is yours, move your router to another channel.** Open your router's settings (usually through its app, or by typing its address into a browser) and change the Wi-Fi channel for that band. Choose a channel outside the range DongleDoctor shows for your Frame.
 3. **Run DongleDoctor again** to check the result.
 

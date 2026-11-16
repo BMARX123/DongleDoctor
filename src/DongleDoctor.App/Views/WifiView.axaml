@@ -14,17 +14,17 @@
 
         <!-- The Frame is streaming: a sweep could cause a hiccup, so ask the user to stop first. -->
         <DockPanel IsVisible="{Binding IsStopStreaming}">
-            <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Center" Content="I've stopped streaming"
+            <Button DockPanel.Dock="Bottom" Classes="primary" HorizontalAlignment="Right" Content="I've stopped streaming"
                     Command="{Binding StoppedStreamingCommand}" />
             <StackPanel VerticalAlignment="Center" Spacing="14">
+                <Border Classes="hero warn"><TextBlock Text="❚❚" FontSize="34" /></Border>
                 <TextBlock Classes="h" TextAlignment="Center" Text="Stop streaming for a moment" />
                 <TextBlock Classes="sub" TextAlignment="Center"
                            Text="Next we check the Wi-Fi around your Frame. That briefly takes the dongle off your Frame's channel, so quit your game and SteamVR on your Frame first." />
-                <Border Classes="verdict away" IsVisible="{Binding StillStreaming}">
+                <Border Classes="verdict away slim" IsVisible="{Binding StillStreaming}">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="Your Frame is still streaming" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DdInkBrush}" />
-                        <TextBlock Text="Quit the game and SteamVR on your Frame, then try again." FontSize="12" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource DdInk2Brush}" />
+                        <TextBlock Classes="t" Text="Your Frame is still streaming" />
+                        <TextBlock Classes="d" Text="Quit the game and SteamVR on your Frame, then press I've stopped streaming." />
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -32,56 +32,74 @@
 
         <!-- Results -->
         <DockPanel IsVisible="{Binding IsResults}">
-            <TextBlock DockPanel.Dock="Top" Classes="h" FontSize="20" Margin="0,0,0,12" Text="{Binding Headline}" />
+            <TextBlock DockPanel.Dock="Top" Classes="h h2" Margin="0,0,0,12" Text="{Binding Headline}" />
 
-            <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,12,0,0">
                 <Button Classes="ghost" Content="Check again" Command="{Binding SweepAgainCommand}" />
-                <Button Grid.Column="2" Classes="primary" Content="Continue" Command="{Binding ContinueCommand}" />
-            </Grid>
+                <Button Classes="primary" Content="Continue" Command="{Binding ContinueCommand}" />
+            </StackPanel>
 
             <ScrollViewer>
-                <StackPanel Spacing="10">
+                <StackPanel Spacing="12">
                     <ItemsControl ItemsSource="{Binding FindingRows}">
                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="vm:FindingRowViewModel">
                                 <Border Classes="finding">
                                     <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
-                                        <Border Classes="stripe" Classes.crit="{Binding IsBlocker}" Classes.warn="{Binding IsWarning}" />
-                                        <StackPanel Grid.Column="1" Margin="0,8" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
-                                                       Foreground="{DynamicResource DdInkBrush}" />
-                                            <TextBlock Text="{Binding Description}" FontSize="12" TextWrapping="Wrap"
-                                                       Foreground="{DynamicResource DdInk2Brush}" />
+                                        <Border Classes="stripe" Classes.crit="{Binding IsBlocker}" Classes.warn="{Binding IsWarning}" Classes.good="{Binding IsPass}" />
+                                        <StackPanel Grid.Column="1" Margin="0,8" VerticalAlignment="Center" Spacing="1">
+                                            <TextBlock Classes="t" Text="{Binding Title}" />
+                                            <Border Classes="tag" Classes.crit="{Binding IsBlocker}" Classes.warn="{Binding IsWarning}"
+                                                    IsVisible="{Binding HasTag}" Margin="0,2,0,2">
+                                                <TextBlock Text="{Binding Tag}" />
+                                            </Border>
+                                            <TextBlock Classes="d" Text="{Binding Description}" />
                                         </StackPanel>
-                                        <Button Grid.Column="2" Classes="ghost compact" Margin="0,0,10,0" VerticalAlignment="Center"
-                                                Content="Show me how" IsVisible="{Binding HasGuide}" Command="{Binding OpenGuideCommand}" />
+                                        <Panel Grid.Column="2" Margin="0,0,10,0" VerticalAlignment="Center">
+                                            <Button Classes="ghost compact" Content="Show me how"
+                                                    IsVisible="{Binding HasGuide}" Command="{Binding OpenGuideCommand}" />
+                                            <TextBlock Classes="pass" Text="PASS" IsVisible="{Binding IsPass}" />
+                                        </Panel>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <StackPanel Spacing="4" IsVisible="{Binding Chart, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel Spacing="6" IsVisible="{Binding Chart, Converter={x:Static ObjectConverters.IsNotNull}}">
                         <v:WifiChannelChart Height="110" Chart="{Binding Chart}"
                                             FrameBrush="{DynamicResource DdAccentBrush}" ConflictBrush="{DynamicResource DdWarnBrush}"
                                             OtherBrush="{DynamicResource DdInk2Brush}" TextBrush="{DynamicResource DdInk2Brush}" />
-                        <TextBlock Classes="small" TextWrapping="Wrap" Text="{Binding LinkSummary}" />
+                        <StackPanel Orientation="Horizontal" Spacing="14">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Border Width="12" Height="9" CornerRadius="2" BorderThickness="2" VerticalAlignment="Center"
+                                        BorderBrush="{DynamicResource DdAccentBrush}" Background="{DynamicResource DdAccentSoftBrush}" />
+                                <TextBlock Classes="small" Text="Your Frame" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasConflicts}">
+                                <Border Width="12" Height="9" CornerRadius="2" VerticalAlignment="Center" Background="{DynamicResource DdWarnBrush}" />
+                                <TextBlock Classes="small" Text="Shares its channel" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Border Width="12" Height="9" CornerRadius="2" VerticalAlignment="Center" Background="{DynamicResource DdInk2Brush}" />
+                                <TextBlock Classes="small" Text="Other networks" />
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
 
                     <ItemsControl ItemsSource="{Binding Conflicts}" IsVisible="{Binding HasConflicts}">
-                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="vm:WifiNetworkRow">
-                                <Border Classes="finding">
-                                    <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
-                                        <Border Classes="stripe warn" />
-                                        <StackPanel Grid.Column="1" Margin="0,8">
-                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"
-                                                       Foreground="{DynamicResource DdInkBrush}" />
-                                            <TextBlock Text="{Binding Detail}" FontSize="12" Foreground="{DynamicResource DdInk2Brush}" />
-                                        </StackPanel>
-                                    </Grid>
+                                <Border BorderBrush="{DynamicResource DdWarnBrush}" BorderThickness="3,0,0,0" Padding="10,2,0,2">
+                                    <StackPanel>
+                                        <TextBlock Classes="t">
+                                            <Run Text="{Binding Name}" />
+                                            <Run Text="{Binding Note}" FontWeight="Normal" FontSize="12" Foreground="{DynamicResource DdInk2Brush}" />
+                                        </TextBlock>
+                                        <TextBlock Classes="d" Text="{Binding Detail}" />
+                                    </StackPanel>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -90,6 +108,11 @@
                     <TextBlock Classes="small" TextWrapping="Wrap" Text="{Binding OthersSummary}" />
                     <TextBlock Classes="small" TextWrapping="Wrap"
                                Text="This shows Wi-Fi networks only. Other things that use the same radio waves, like Bluetooth or microwaves, don't show up here." />
+
+                    <Expander Classes="tech" Header="Technical details" IsVisible="{Binding LinkSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <TextBlock Classes="small" TextWrapping="Wrap" FontFamily="{StaticResource DdMonoFont}" FontSize="11"
+                                   Text="{Binding LinkSummary}" />
+                    </Expander>
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>

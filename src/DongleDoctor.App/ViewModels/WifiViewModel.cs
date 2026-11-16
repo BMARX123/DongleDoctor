@@ -126,9 +126,12 @@ public partial class WifiViewModel(
             return;
         }
 
-        var link = survey.Link is { } l ? $" · {l.SignalPercent}% signal · {l.RxMbps} Mbps" : "";
-        LinkSummary = $"Your Frame: channel {frame.ChannelRange}, {WifiAnalysis.BandName(frame.Band)}, {frame.WidthMhz} MHz wide{link}";
+        // Plain words on screen; channels, widths and rates sit behind "Technical details".
+        var link = survey.Link is { } l ? $" · signal {l.SignalPercent}%, {l.RxMbps} Mbps" : "";
         Conflicts = [.. survey.Conflicts.Select(n => new WifiNetworkRow(n))];
+        LinkSummary = UiText.KeepUnits(string.Join(Environment.NewLine,
+            [$"Your Frame: channels {frame.ChannelRange}, {WifiAnalysis.BandName(frame.Band)}, {frame.WidthMhz} MHz wide{link}",
+             .. Conflicts.Select(c => c.Technical)]));
         OnPropertyChanged(nameof(HasConflicts));
 
         var weak = survey.WeakOverlaps.Count;
@@ -151,12 +154,25 @@ public sealed class WifiNetworkRow(WifiNetwork network)
         _ => $"{network.Names[0]} (+{network.Names.Count - 1} more)",
     };
 
+    /// <summary>Hidden networks get a word of explanation; it's not a fault.</summary>
+    public string Note => network.Names.Count == 0 ? "(its owner hides the name)" : "";
+
     public string Detail
     {
         get
         {
-            var load = network.LoadPercent is { } p ? $" · {p}% busy" : "";
-            return $"Channel {network.ChannelRange} · {WifiAnalysis.Strength(network.Rssi)} signal{load}";
+            var strength = WifiAnalysis.Strength(network.Rssi);
+            return $"{char.ToUpperInvariant(strength[0])}{strength[1..]} signal, on your Frame's channel";
+        }
+    }
+
+    /// <summary>The numbers, for "Technical details".</summary>
+    public string Technical
+    {
+        get
+        {
+            var load = network.LoadPercent is { } p ? $", {p}% busy" : "";
+            return $"{Name}: channels {network.ChannelRange}, {network.WidthMhz} MHz{load}";
         }
     }
 }

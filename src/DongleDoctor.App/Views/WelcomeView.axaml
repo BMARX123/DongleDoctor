@@ -5,16 +5,13 @@
              x:DataType="vm:WelcomeViewModel">
 
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="14">
-        <Border Width="96" Height="96" CornerRadius="48" HorizontalAlignment="Center"
-                Background="{DynamicResource DdAccentSoftBrush}">
-            <TextBlock Text="+" FontSize="46" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Foreground="{DynamicResource DdAccentBrush}" />
-        </Border>
+        <Border Classes="hero accent"><TextBlock Text="+" /></Border>
         <TextBlock Classes="h" TextAlignment="Center" Text="Let's get your Steam Frame streaming smoothly" />
         <TextBlock Classes="sub" TextAlignment="Center"
-                   Text="We'll check how your dongle is plugged in, then you can scan your connection while you play." />
-        <Button Classes="primary" HorizontalAlignment="Center" Content="Check my setup" Command="{Binding StartCommand}" />
-        <TextBlock Classes="small" HorizontalAlignment="Center" Text="Checks take seconds · Nothing changes unless you say so" />
+                   Text="We'll check how your dongle is plugged in, then watch your connection while you play." />
+        <Button Classes="primary big" HorizontalAlignment="Center" Content="Check my setup" Command="{Binding StartCommand}" />
+        <TextBlock Classes="small" TextAlignment="Center" TextWrapping="Wrap"
+                   Text="About 15 minutes, including 10 minutes of playing · Nothing changes unless you say so" />
     </StackPanel>
 
 </UserControl>

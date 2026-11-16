@@ -1,4 +1,4 @@
-# Your Frame isn't using 6 GHz
+# Your game stream isn't on 6 GHz
 
 The Frame's wireless adapter can stream over 6 GHz, the newest Wi-Fi band. Few devices use it yet, so it's usually much quieter than 5 GHz, and it allows a wider channel. Your Frame is streaming over 5 GHz (or 2.4 GHz) instead, where it shares the air with the Wi-Fi networks around you.
 

@@ -136,10 +136,10 @@ public static class WifiAnalysis
         var details = string.Create(CultureInfo.InvariantCulture,
             $"Frame link: {BandName(frame.Band)} ch {frame.Channel}, {frame.WidthMhz} MHz, {frame.Rssi} dBm");
         return frame.Band == WifiBand.Ghz6
-            ? new Finding(BandCheckId, Severity.Pass, "Your Frame is using 6 GHz",
+            ? new Finding(BandCheckId, Severity.Pass, "Your game stream is on 6 GHz",
                 "6 GHz is the clearest band for streaming.", Details: details)
-            : new Finding(BandCheckId, Severity.Warning, "Your Frame isn't using 6 GHz",
-                $"Your Frame streams on {BandName(frame.Band)}, which nearby Wi-Fi shares. This usually happens when your Frame's own Wi-Fi is connected to a 6 GHz network. Connect your Frame to your router's 5 GHz or 2.4 GHz network instead.",
+            : new Finding(BandCheckId, Severity.Warning, $"Your game stream is on {BandName(frame.Band)}, not 6 GHz",
+                "This usually happens when your Frame is connected to your home Wi-Fi on 6 GHz. Connect your Frame to your router's 5 GHz network instead, and the stream can move to 6 GHz.",
                 FindingAction.Guide, details);
     }
 
@@ -157,13 +157,13 @@ public static class WifiAnalysis
         if (survey.Conflicts.Count == 0)
         {
             return new Finding(CheckId, Severity.Pass, "No strong Wi-Fi on your Frame's channel",
-                $"Your Frame uses {where}, and no strong networks share it.", Details: details);
+                "Nothing nearby takes airtime from your Frame.", Details: details);
         }
 
         var n = survey.Conflicts.Count;
         return new Finding(CheckId, Severity.Warning,
             n == 1 ? "A Wi-Fi network shares your Frame's channel" : $"{n} Wi-Fi networks share your Frame's channel",
-            $"They overlap {where} and take airtime from your Frame. If one is your router, move it to another channel.",
+            "They take airtime from your Frame. If one is your router, move it to another channel.",
             FindingAction.Guide, details);
     }
 
